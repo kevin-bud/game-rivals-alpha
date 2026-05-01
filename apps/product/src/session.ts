@@ -54,6 +54,8 @@ type FullMessage = {
   reason: string;
 };
 
+type SlotWins = [number, number];
+
 type PilotStateMessage = {
   type: "state";
   phase: Phase;
@@ -62,6 +64,8 @@ type PilotStateMessage = {
   blockers: Blocker[];
   timeRemainingMs: number;
   countdownRemainingMs: number;
+  slotWins: SlotWins;
+  yourSlot: number;
   winner?: Winner;
 };
 
@@ -74,6 +78,8 @@ type SpawnerStateMessage = {
   timeRemainingMs: number;
   countdownRemainingMs: number;
   lanesOnCooldown: boolean[];
+  slotWins: SlotWins;
+  yourSlot: number;
   winner?: Winner;
 };
 
@@ -130,6 +136,10 @@ export class SessionRoom implements DurableObject {
   private lastSpawnAt: number[] = [0, 0, 0];
   private phaseStartedAt = 0;
   private winner: Winner | null = null;
+  // Cumulative wins indexed by slot (slot 0 = first connection, slot 1 =
+  // second). Persists for the lifetime of the DO across rounds; reset only
+  // by closing the session.
+  private slotWins: SlotWins = [0, 0];
   private tickHandle: ReturnType<typeof setInterval> | null = null;
   private countdownHandle: ReturnType<typeof setTimeout> | null = null;
 
@@ -310,6 +320,14 @@ export class SessionRoom implements DurableObject {
     this.phase = "over";
     this.winner = winner;
     this.phaseStartedAt = Date.now();
+    // Increment the slot that currently holds the winning role. Roles
+    // swap on Play Again; slots are stable for the DO lifetime, so this
+    // attributes the round win to the human in that slot regardless of
+    // which role they happened to be playing this round.
+    const winnerSlotIndex = this.clients.findIndex((slot) => slot.role === winner);
+    if (winnerSlotIndex === 0 || winnerSlotIndex === 1) {
+      this.slotWins[winnerSlotIndex] += 1;
+    }
     this.broadcastState();
   }
 
@@ -405,7 +423,10 @@ export class SessionRoom implements DurableObject {
     const lanesOnCooldown = this.lanesOnCooldown();
     const winner = this.winner ?? undefined;
 
-    for (const slot of this.clients) {
+    const slotWinsSnapshot: SlotWins = [this.slotWins[0], this.slotWins[1]];
+
+    for (let i = 0; i < this.clients.length; i += 1) {
+      const slot = this.clients[i];
       if (slot.role === "pilot") {
         const msg: PilotStateMessage = {
           type: "state",
@@ -415,6 +436,8 @@ export class SessionRoom implements DurableObject {
           blockers: blockersSnapshot,
           timeRemainingMs,
           countdownRemainingMs,
+          slotWins: slotWinsSnapshot,
+          yourSlot: i,
         };
         if (winner !== undefined) {
           msg.winner = winner;
@@ -430,6 +453,8 @@ export class SessionRoom implements DurableObject {
           timeRemainingMs,
           countdownRemainingMs,
           lanesOnCooldown,
+          slotWins: slotWinsSnapshot,
+          yourSlot: i,
         };
         if (winner !== undefined) {
           msg.winner = winner;

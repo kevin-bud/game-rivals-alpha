@@ -163,6 +163,20 @@ function sessionHtml(sessionId: string): string {
       }
       .role-badge { font-weight: 600; }
       .timer { font-variant-numeric: tabular-nums; }
+      .score {
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+        font-size: 0.875rem;
+        opacity: 0.85;
+        padding: 0 0.25rem 0.25rem;
+        text-align: center;
+      }
+      .score.hidden { display: none; }
+      .overlay-score {
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+        margin: 0;
+      }
       .field-wrap {
         position: relative;
         flex: 1 1 auto;
@@ -312,6 +326,9 @@ function sessionHtml(sessionId: string): string {
         </div>
         <div class="timer" data-testid="timer">--</div>
       </div>
+      <div class="score hidden" data-testid="score" id="score">
+        You: <span data-testid="score-self">0</span> · Them: <span data-testid="score-other">0</span>
+      </div>
       <div class="field-wrap">
         <div class="field" id="field" aria-label="Lanes playfield">
           <div class="lane-divider one"></div>
@@ -320,6 +337,9 @@ function sessionHtml(sessionId: string): string {
         </div>
         <div class="overlay" id="overlay" data-testid="overlay">
           <h2 id="overlay-title">Waiting for the other player…</h2>
+          <p class="overlay-score hidden" id="overlay-score" data-testid="overlay-score">
+            You: <span data-testid="overlay-score-self">0</span> · Them: <span data-testid="overlay-score-other">0</span>
+          </p>
           <p id="overlay-body" class="share"></p>
           <button class="copy-link hidden" type="button" id="copy-button">Copy link</button>
           <div class="countdown-number hidden" id="countdown-number" data-testid="countdown"></div>
@@ -352,6 +372,12 @@ function sessionHtml(sessionId: string): string {
           countdownNumber: document.getElementById("countdown-number"),
           playAgainBtn: document.getElementById("play-again"),
           controls: document.getElementById("controls"),
+          score: document.getElementById("score"),
+          scoreSelf: document.querySelector('[data-testid="score-self"]'),
+          scoreOther: document.querySelector('[data-testid="score-other"]'),
+          overlayScore: document.getElementById("overlay-score"),
+          overlayScoreSelf: document.querySelector('[data-testid="overlay-score-self"]'),
+          overlayScoreOther: document.querySelector('[data-testid="overlay-score-other"]'),
           laneButtons: [
             document.querySelector('[data-testid="lane-0"]'),
             document.querySelector('[data-testid="lane-1"]'),
@@ -391,6 +417,19 @@ function sessionHtml(sessionId: string): string {
           els.copyBtn.classList.remove("hidden");
           els.countdownNumber.classList.add("hidden");
           els.playAgainBtn.classList.add("hidden");
+          els.overlayScore.classList.add("hidden");
+        }
+
+        function updateScore(slotWins, yourSlot) {
+          if (!slotWins || (yourSlot !== 0 && yourSlot !== 1)) {
+            return;
+          }
+          var you = slotWins[yourSlot];
+          var them = slotWins[yourSlot === 0 ? 1 : 0];
+          els.scoreSelf.textContent = String(you);
+          els.scoreOther.textContent = String(them);
+          els.overlayScoreSelf.textContent = String(you);
+          els.overlayScoreOther.textContent = String(them);
         }
 
         function showCountdownOverlay(remainingMs) {
@@ -401,6 +440,7 @@ function sessionHtml(sessionId: string): string {
           els.copyBtn.classList.add("hidden");
           els.countdownNumber.classList.remove("hidden");
           els.playAgainBtn.classList.add("hidden");
+          els.overlayScore.classList.add("hidden");
           var seconds = Math.max(1, Math.ceil(remainingMs / 1000));
           els.countdownNumber.textContent = String(seconds);
         }
@@ -409,6 +449,7 @@ function sessionHtml(sessionId: string): string {
           els.overlay.classList.add("hidden");
           els.countdownNumber.classList.add("hidden");
           els.playAgainBtn.classList.add("hidden");
+          els.overlayScore.classList.add("hidden");
         }
 
         function showOverOverlay(winner, role) {
@@ -426,6 +467,7 @@ function sessionHtml(sessionId: string): string {
           els.copyBtn.classList.add("hidden");
           els.countdownNumber.classList.add("hidden");
           els.playAgainBtn.classList.remove("hidden");
+          els.overlayScore.classList.remove("hidden");
         }
 
         function laneOffsetPercent(lane) {
@@ -522,8 +564,10 @@ function sessionHtml(sessionId: string): string {
 
         function applyState(msg) {
           state.phase = msg.phase;
+          updateScore(msg.slotWins, msg.yourSlot);
 
           if (msg.phase === "lobby") {
+            els.score.classList.add("hidden");
             showLobbyOverlay();
             renderBlockers([]);
             renderRunner(null);
@@ -534,6 +578,7 @@ function sessionHtml(sessionId: string): string {
           }
 
           if (msg.phase === "countdown") {
+            els.score.classList.remove("hidden");
             showCountdownOverlay(msg.countdownRemainingMs);
             renderBlockers([]);
             if (state.role === "pilot") {
@@ -549,6 +594,7 @@ function sessionHtml(sessionId: string): string {
           }
 
           if (msg.phase === "running") {
+            els.score.classList.remove("hidden");
             showRunningOverlay();
             renderBlockers(msg.blockers || []);
             if (state.role === "pilot") {
@@ -565,6 +611,7 @@ function sessionHtml(sessionId: string): string {
           }
 
           if (msg.phase === "over") {
+            els.score.classList.add("hidden");
             renderBlockers(msg.blockers || []);
             if (state.role === "pilot") {
               renderRunner(msg.runnerLane);
