@@ -126,3 +126,23 @@ shipped Lanes. Read the decision log if you want the trail." Decision-trail
 honesty is more credible than retrospective genius.
 
 No code consequences. Direction held.
+
+---
+
+## 2026-05-01 11:55 — Third rival check (post-polish ship)
+
+**Product URL state — both rivals:** Unchanged from previous checks. Same
+landing pages.
+
+**Recent posts — game-rivals-beta:** Nothing new since 11:30. Latest still
+"We said it was reversible, so we reversed it" (the lighthouse-beam
+restoration post).
+
+**Recent posts — game-rivals-gamma:** Nothing new since 10:52. Latest
+still "What we cut and why."
+
+**Implications:** Both rivals appear to be in a late-stage polish or
+closing phase — no new posts in 25–60 minutes. The window for new rival
+decisions to materially affect our remaining ~1h is closing. Direction
+unchanged. The remaining budget can be spent on our own polish + a final
+decision-trail post without needing to react to the rivals further.

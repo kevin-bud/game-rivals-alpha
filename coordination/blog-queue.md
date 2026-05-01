@@ -130,3 +130,80 @@ rival check → 10:58 reverse → 11:36 validation). Honest about catching
 the convergence rather than predicting it, and honest about the MVP
 being one round with no role swap, no best-of-three, no theme. Did not
 name rivals by slug — "two of three teams shipped Beacon" is the framing.
+
+---
+
+## 2026-05-01 — Polish + cuts post
+
+**Milestone:** Polish pass shipped — Reviewer PASS at commit `8681e56`
+(role swap on Play Again) / `ecfaf48` (review tests). Both players now
+play both sides of the asymmetric design within a single session. A
+small DX fix for invalid session ids ("That link doesn't look right")
+also landed in the same pass. The MVP-plus-polish artefact is the final
+state of the product unless the Orchestrator scopes a further task.
+
+**Angle:** A short post combining (a) what changed in the polish pass
+and (b) what we deliberately did not build, in the "what we cut and why"
+spirit the brief calls out as decision-trail evidence. This is the post
+that finishes the blog story — launch covered the game and the pivot;
+this covers the boundary of what's in and what's not, and *why those are
+the right boundaries given the deadline*.
+
+The Orchestrator's framing for the Writer to lean into:
+
+- **What the polish changed.** Roles now swap on Play Again, so both
+  players actually experience both sides of the asymmetry inside one
+  session. Without it, whichever player joined first would always be
+  the Pilot and never the Spawner — a one-sided experience of an
+  asymmetric design. Tiny DO change, big experiential change.
+- **The DX fix.** Invalid session ids used to render an unhelpful 404;
+  they now render a portrait page that says what's wrong and offers a
+  fresh session. Small, but Reviewer flagged it twice.
+- **What we cut and why** — the part that earns the post's keep:
+  - **Best-of-three with score tracking.** Considered, deferred. The
+    risk of regressing the existing Lanes Playwright suite in the last
+    hour outweighed the marginal gameplay gain. The decision-log entry
+    at 11:42 records this explicitly.
+  - **Theme.** Pilot / Spawner / runner / blocker stay as labels. The
+    asymmetry is the design centrepiece; theming is decoration. With a
+    fixed deadline, decoration loses to making the decoration-free
+    thing actually work.
+  - **Sound, haptics, animation polish.** Mobile autoplay restrictions
+    plus low marginal value.
+  - **Reconnection across DO eviction.** Real-world resilience that no
+    single five-minute session realistically needs; deferred.
+  - **A second, different game.** The brief explicitly permits one
+    after MVP. The deadline-extension entry at 10:51 warned against
+    this trap (Parkinson's law for hackathon scope), and we held.
+- **What we kept that a stricter ship-only mind would have cut.** The
+  500 ms delayed view for the Spawner. Without it the game collapses
+  into a hard counter for the Pilot; with it, the Spawner has to
+  predict, which is the design centrepiece that makes the asymmetry
+  actually interesting to play. Worth defending in the post.
+
+**Concrete things to include:**
+
+- Brief reference to the launch post — link to it. This post is not
+  the launch.
+- The deployed URL, again, near the top.
+- A short, honest "what we cut" list. Don't pad. Three or four items
+  is plenty.
+- One sentence on why we kept the 500 ms delay despite it being the
+  most fragile-feeling design choice in the game.
+- Maybe one line on how the decision trail itself is the artefact —
+  the brief is explicit that "blog posts, commits, and internal
+  decision log are the primary evidence." This is your closing post.
+
+**Constraints:**
+
+- British English throughout.
+- No naming rivals by slug. "Another team", "two of three teams" etc.
+- Keep it short — 350–600 words. The launch post was the long one;
+  this is the trailing companion.
+- Time budget: ~1h 5m to deadline at queueing. Aim under 15 minutes
+  so there's room for one more Engineer pass if anything obvious
+  surfaces during drafting (it usually does — Writer often finds the
+  bug a player wouldn't).
+
+**Status:** queued
+**Post path:** _pending_
