@@ -98,3 +98,32 @@ Test code: `apps/product/tests/lanes.spec.ts` (one end-to-end test, ~140 lines, 
 Notes for the Engineer (informational only — not a blocker):
 
 - Initial review pass failed with `getByTestId("role")` not found because the Reviewer's first `freshSessionId()` used the prefix `lv`, but `l` is also excluded from `SESSION_ID_ALPHABET` (along with `o`, `0`, `1`). Fixed by switching the prefix to `rv` (matching `session.spec.ts`). Same hazard the previous review flagged. If the substrate were to surface invalid-id pages with the role testid still present (or render a more specific 404), test failures would be a touch easier to diagnose — but this is purely a developer-experience polish, not gating.
+
+---
+
+## 2026-05-01 — Lanes polish: role swap on Play Again + invalid-id page
+
+**Commit:** 8681e56
+**Deployed URL:** https://game-rivals-alpha-product.kevin-wilson.workers.dev
+**Sample session URL (open this on two browsers):** https://game-rivals-alpha-product.kevin-wilson.workers.dev/s/polish8
+**Invalid-id URL (Reviewer should hit this and see the new page):** https://game-rivals-alpha-product.kevin-wilson.workers.dev/s/0000000
+
+**Claim:** Two changes. (1) Role swap on Play Again: when either client sends `{type:"play_again"}` from the `over` overlay, the DO now swaps Pilot/Spawner across the two slots before re-entering `countdown`, and re-broadcasts a fresh `{type:"role", role}` message to each client at the start of every round. The first round still follows the existing connection-order rule (first = Pilot, second = Spawner). The page re-renders the role badge, lane button labels, and the runner / ghost-runner placement on each `role` + `state` pair, so both players actually play both sides of the asymmetry inside one session. (2) Invalid session id page: `/s/<bad-id>` (any character outside `[a-z2-9]`, or wrong length) now returns HTTP 404 with a small portrait HTML page reading "That link doesn't look right", a one-sentence explanation that links are auto-generated, and a single "Create session" button that POSTs to `/api/session`. British English throughout.
+
+**Verification done before claiming:**
+
+- `pnpm --filter product build` passes; `pnpm --filter product lint` passes (no `any`, curly braces enforced).
+- `pnpm deploy:product` succeeded — `Uploaded game-rivals-alpha-product (12.45 sec)`.
+- Full Playwright suite (`session.spec.ts`, `lanes.spec.ts`, `smoke.spec.ts`) green against the deployed URL: 6/6 passed in 13.5s. The Lanes test was updated for round 2 to assert the *swapped* role labels (`pilotPage` reads "You are the Spawner" after Play Again, `spawnerPage` reads "You are the Pilot"); the first-round contract is unchanged.
+- `curl -I /s/0000000` returns `HTTP/2 404`; body contains `That link doesn't look right` and `Create session` button. Confirmed.
+
+**How the Reviewer can verify (Playwright against the deployed URL):**
+
+1. Open `/s/polish8` in two browser contexts. First should resolve to `You are the Pilot`, second to `You are the Spawner`. Drive a Spawner-wins round (Pilot pinned to lane 1, Spawner spams lane 1 every 700 ms).
+2. After the over-overlay appears, click `Play again` from either client. Both clients should see `getByTestId("countdown")`, then the overlay hides. The originally-Pilot context should now read `You are the Spawner` and its `getByTestId("lane-1")` should read `Drop ▼`; the originally-Spawner context should read `You are the Pilot` with `getByTestId("lane-1")` reading `Centre`. The runner should now be visible in the originally-Spawner context, and the ghost-runner in the originally-Pilot context.
+3. A second `Play again` should swap roles back to the original assignment. (Optional — not asserted by the existing suite, but trivial to add.)
+4. Hit `/s/0000000` directly. Status is 404; the page shows the heading "That link doesn't look right" and a `Create session` button that POSTs to `/api/session`.
+
+**Out of scope (deliberately not done):** score tracking, best-of-three match end, theme, animations, sound, reconnection across DO eviction. Per the decision log, this polish pass was bounded.
+
+**Reviewer verdict:** _pending_
