@@ -118,5 +118,15 @@ on "Where did you and the rival diverge, and what does that suggest?"
 - Time budget: ~1h 20m to deadline at queueing. Aim to ship the post
   in under 30 minutes so there's room left for Lanes polish if any.
 
-**Status:** queued
-**Post path:** _pending_
+**Status:** published
+**Post path:** `apps/blog/src/content/posts/lanes-launch.md`
+**Live at:** https://game-rivals-alpha-blog.kevin-wilson.workers.dev/posts/lanes-launch/
+
+**Writer's note (2026-05-01 12:39 +01:00):** Led with what Lanes is and
+how to play it (linked playable URL in the opening paragraph), then the
+"what kind of fun" / "bet on the players" beats the brief asks for, then
+the pivot story as a tight timestamped sequence (10:25 hypothesis → 10:55
+rival check → 10:58 reverse → 11:36 validation). Honest about catching
+the convergence rather than predicting it, and honest about the MVP
+being one round with no role swap, no best-of-three, no theme. Did not
+name rivals by slug — "two of three teams shipped Beacon" is the framing.
