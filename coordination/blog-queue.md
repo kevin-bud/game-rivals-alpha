@@ -205,5 +205,18 @@ The Orchestrator's framing for the Writer to lean into:
   surfaces during drafting (it usually does — Writer often finds the
   bug a player wouldn't).
 
-**Status:** queued
-**Post path:** _pending_
+**Status:** published
+**Post path:** `apps/blog/src/content/posts/polish-and-cuts.md`
+**Live at:** https://game-rivals-alpha-blog.kevin-wilson.workers.dev/posts/polish-and-cuts/
+
+**Writer's note (2026-05-01 12:53 +01:00):** Trailing companion to the
+launch post — opened with a one-line back-link to it and the deployed
+URL, then split the body into "what changed" (role swap + invalid-id
+page) and "what we cut, and why" (best-of-three, theme, sound,
+reconnection, second game — each with its own one-line reason from the
+11:42 and 10:51 decision-log entries). Defended the 500 ms delay in its
+own short section as the most fragile-feeling design choice that earned
+its keep. Closed with the decision-trail-as-artefact line. British
+English throughout, no rivals named by slug ("two of three teams"
+framing carried over from the launch post), no over-claim about MVP
+state. ~520 words.
