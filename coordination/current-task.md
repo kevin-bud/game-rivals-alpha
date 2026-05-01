@@ -3,161 +3,103 @@
 Set by the Orchestrator. Read by the Engineer. The Engineer updates the
 `Status` field as work progresses.
 
-**Task:** Lanes — first end-to-end vertical slice (single round MVP)
-**Assigned:** 2026-05-01 11:19
-**Status:** shipped
+**Task:** Lanes polish — role swap on Play Again + invalid-id page
+**Assigned:** 2026-05-01 11:42
+**Status:** assigned
 
-**Why this task:** Both rivals have converged on the cooperative
-"navigator + blind sailor" concept that was in our kickoff hypothesis.
-We have pivoted to a competitive, role-asymmetric, action-driven game
-called **"Lanes"**. See `coordination/decision-log.md` 10:58 entry for
-the full design rationale and `coordination/rival-state.md` 10:55 for the
-rival situation. The substrate (Worker + Durable Object + WebSocket) is
-already shipped at commit 4ce8722 and survives the pivot intact. This
-task drops the first playable game on top.
+**Why this task:** MVP shipped at commit `a14123b` and the launch post is
+live. About 1h 18m of deadline budget remain. The 11:42 decision-log entry
+explains the trade-off; the short version is that with roles permanently
+fixed for the lifetime of the session, only one player experiences each
+side of the asymmetric design. Swapping roles on each "Play again" makes
+both players actually play both roles inside one match, which is what the
+asymmetric design was built to produce.
 
-**Time budget:** Deadline is `2026-05-01T13:00:00+00:00`. About 1h 40m
-remain at assignment. Aim for the smallest thing that is end-to-end
-playable and review-passable. Polish is **out of scope** — defend the
-"playable end to end" line, then stop.
-
-**The game in one paragraph (placeholder theme — not your decision to
-re-theme during this slice):** Phone-portrait. Three vertical lanes. A
-"runner" sits near the bottom of the field; the field scrolls visually
-*downward* past it (mechanic-equivalent to the runner moving up). One
-player is the **Pilot**, the other is the **Spawner**. Pilot taps one
-of three lane buttons to put the runner in that lane. Spawner taps one
-of three lane buttons to drop a blocker into that lane at the top of the
-field; the blocker scrolls down with the field. If any blocker reaches
-the runner's row while in the runner's lane → Spawner wins. If 30
-seconds pass without a collision → Pilot wins. End-of-round screen
-declares the winner with a single "Play again" button that resets the
-round (same roles, same session — no role swap, no best-of-3 in this
-slice).
+**Time budget:** Strict 25 minutes from assignment to claim. If you push
+past it, stop and ship what you have. Deadline `2026-05-01T13:00:00+00:00`.
 
 ## What to build
 
-1. **Role assignment.** Extend the `SessionRoom` Durable Object so that
-   when the second WebSocket connects, both clients receive a
-   `{ type: "role", role: "pilot" | "spawner" }` message. First
-   connection = Pilot, second = Spawner. Roles persist for the lifetime
-   of the session; reconnections do not reshuffle.
-2. **Game state machine in the DO.** States: `lobby` → `countdown` →
-   `running` → `over`. Transition `lobby → countdown` automatically when
-   both clients are connected. `countdown` lasts 3 seconds, then
-   transitions to `running`. `running` lasts 30 seconds (or until
-   collision). `over` waits for either client to send `{ type: "play_again" }`,
-   at which point the DO resets to `countdown` directly (both clients
-   are still connected).
-3. **Tick loop.** While in `running`, the DO ticks every 100 ms. Each
-   tick: advance all blockers by one row, spawn nothing automatically
-   (blockers only appear in response to Spawner taps), check collision,
-   broadcast state. Use `setTimeout` or `setInterval` inside the DO.
-   Clear the timer cleanly on state transitions and on disconnect.
-4. **Field model.** 3 lanes wide × ~12 rows tall. Runner is always at
-   row 11 (the row before the bottom). Blockers spawn at row 0 and
-   advance one row per tick toward row 11. A blocker at row 11 in the
-   runner's lane → collision.
-5. **Pilot input.** Pilot client sends `{ type: "lane", lane: 0 | 1 | 2 }`
-   when a lane button is tapped. DO updates the runner's lane
-   immediately on receipt (no per-tick rate limit needed for the Pilot —
-   the Spawner will outpace them on taps anyway).
-6. **Spawner input.** Spawner client sends
-   `{ type: "spawn", lane: 0 | 1 | 2 }`. DO appends a blocker at row 0
-   in that lane. **Spawner has a per-lane cooldown of 600 ms** (i.e.
-   you cannot spawn into the same lane more than ~1.6 times per second)
-   to keep the game readable. Cross-lane spawns have no shared cooldown.
-   Reject (silently drop) spawns during cooldown.
-7. **Spawner's view of the runner is delayed by 500 ms.** This is the
-   one piece of asymmetry beyond "different inputs / different
-   objectives" — it makes the Spawner predict, not just react, and keeps
-   the game from being a hard-counter to the Pilot. Implement by having
-   the DO broadcast a separate `spawnerView` field for the Spawner's
-   client containing the runner's lane *as it was 500 ms ago*. The
-   Pilot's view shows the live lane.
-8. **State broadcast.** On every tick (and every state transition), the
-   DO broadcasts to each client a state message tailored to their role:
-   - To Pilot:
-     `{ type: "state", phase, runnerLane, blockers: [{lane,row}], timeRemainingMs }`
-   - To Spawner:
-     `{ type: "state", phase, spawnerViewRunnerLane, blockers: [{lane,row}], timeRemainingMs, lanesOnCooldown: [bool,bool,bool] }`
-   - On `over`, include `winner: "pilot" | "spawner"`.
-   Use the same WebSocket the substrate already opened. No new sockets.
-9. **Client rendering.** Plain DOM, no framework. Render the field as
-   a simple grid (CSS grid or absolutely-positioned divs is fine — pick
-   the shorter one). Three large lane-buttons across the bottom of the
-   viewport for thumb reach. The button labels for Pilot read
-   "← Left", "Centre", "Right →" (British spelling, pinning runner to
-   that lane). For Spawner, button labels read "Drop ←", "Drop ▼",
-   "Drop →". A countdown banner ("3… 2… 1… GO") covers the field during
-   `countdown`. An end-of-round overlay ("You won!" / "You lost!") with
-   a "Play again" button covers it during `over`.
-10. **Repo-root README.** Create or update `README.md` at the repo root
-    to describe the game in one short paragraph, who it is for ("two
-    adults sharing a link, on phones, three minutes to spare"), and how
-    to play (one sentence per role). British English. This is a
-    requirement in the brief's MVP definition. Keep it short — five to
-    ten lines including the H1.
-11. **Update `apps/product/README.md`** to mention that the Worker now
-    runs a game on top of the substrate, with a one-line link to the
-    repo-root README for game-level docs.
-12. **Stack rules.** Curly braces on every conditional (`curly: all`).
-    No `any`. Prefer `type`. Named exports. British English in human
-    prose.
+1. **Role swap on Play Again.** When the DO transitions out of `over` in
+   response to a `{type:"play_again"}` message from either client, swap
+   the Pilot and Spawner role assignments before re-broadcasting `role`
+   messages and entering `countdown`. The first round's roles still
+   follow the existing rule (first connection = Pilot, second = Spawner).
+   Subsequent rounds alternate: round 2 swaps, round 3 swaps back, and
+   so on. Both clients should receive a fresh `{type:"role", role}`
+   message at the start of each new round so their UI updates lane
+   labels ("← Left / Centre / Right →" for Pilot, "Drop ← / Drop ▼ /
+   Drop →" for Spawner).
+2. **Client UI on role change.** The page must visibly re-render when a
+   new `role` message arrives mid-session: the role label
+   (`getByTestId("role")` text), the lane button labels, and any
+   role-conditional rendering (Pilot sees `runner`, Spawner sees
+   `ghost-runner`). Test this — the existing `getByTestId("role")`
+   assertion should still match after a Play Again, with the *opposite*
+   role text.
+3. **Invalid session id page.** Currently a request to `/s/<bad-id>`
+   (where `bad-id` contains characters outside `SESSION_ID_ALPHABET`,
+   e.g. `0`, `1`, `l`, `o`, or anything not in `[a-z2-9]`, or has the
+   wrong length) appears to 404 with no useful body. Replace this with
+   a small HTML page (same minimal portrait viewport as the rest of the
+   app) that says "That link doesn't look right" in British English,
+   with a one-sentence explanation that session links are
+   auto-generated, plus a single "Create session" button that POSTs to
+   the existing session-creation endpoint. Use HTTP status 404 — search
+   engines and link previews benefit from the correct status; the page
+   body is what matters for humans.
+4. **Stack rules unchanged.** Curly braces on every conditional, no
+   `any`, prefer `type`, named exports, British English in human prose.
 
 ## Definition of done
 
 - `pnpm --filter product build` passes.
 - `pnpm --filter product deploy` succeeds and the deployed URL responds.
-- Two browser windows opened to the same `/s/:id` reach `running` within
-  a few seconds of the second one joining; one full round resolves
-  (either the Pilot survives 30 s or a blocker collides), the winner is
-  shown, "Play again" resets to a fresh countdown, and a second round
-  also resolves.
-- Repo-root `README.md` exists and describes the game, audience, and
-  how to play.
-- The Engineer appends a completion claim to
-  `coordination/review-queue.md` including: the deployed URL, a sample
-  `/s/:id` URL the Reviewer can use directly (use only characters from
-  the existing session-id alphabet — `0` and `1` are excluded; the
-  Reviewer noted this last time), and a one-line note on what was cut
-  for time.
+- Existing Playwright tests (`apps/product/tests/session.spec.ts`,
+  `apps/product/tests/lanes.spec.ts`, `apps/product/tests/smoke.spec.ts`)
+  all still pass against the deployed URL — including the existing role
+  assertions on first connection.
+- Manual smoke (you, two browser windows on the same `/s/:id`): play one
+  round to completion, click "Play again", verify both clients now show
+  the *opposite* role label and the runner / ghost-runner are flipped to
+  the other client.
+- Manual smoke for the invalid-id page: hit `/s/0000000` (contains `0`,
+  rejected) and verify the new page renders with a "Create session"
+  button.
+- The Engineer appends a completion claim to `coordination/review-queue.md`
+  with deployed URL, sample `/s/:id` URL using only valid alphabet chars
+  (e.g. `polish8`, `swapxyz`), and the invalid-id URL the Reviewer should
+  hit (`/s/0000000` is a fine test case).
 - Status flipped to `claimed`.
 
 ## Out of scope (do not start)
 
-- Theme. "Runner / blocker" stays as labels. No graphics, no maritime,
-  no nothing. Polish happens after MVP if there's time.
-- Best-of-three or role swap. Single round, same roles, "Play again"
-  loops the same matchup. The role-swap is the next task's problem.
-- Sound, haptics, animation beyond CSS transitions on lane changes if
-  they come for free.
-- Reconnection across DO eviction. Same as the substrate slice.
-- Persistence, leaderboards, score history.
-- Anti-cheat. Server-authoritative state already gets us most of the
-  way.
+- Score tracking. No "P 1 - S 0" counter. The decision log explicitly
+  defers best-of-three with score for risk reasons.
+- Match end / declared match winner. Play Again continues to loop
+  rounds indefinitely.
+- Theme, animations beyond what already exists, sound, haptics.
+- Reconnection across DO eviction.
+- Any change to the substrate's connection-count / session-full
+  behaviour. The existing substrate tests must continue passing.
+- Any change to the existing tick / collision / cooldown logic. Touch
+  only role assignment, the Play Again transition, and the 404 page.
 
 ## Hard escalation rule
 
-If any of the following is true at the **30-minute mark** from now,
-flip Status to `blocked`, append a one-line note, and stop — do not
-push past the rule. The Orchestrator will reduce scope on the spot:
-
-- The DO tick loop is not yet broadcasting state to both clients.
-- Role assignment is not deterministic.
-- You have introduced any `any`, any `interface`, or any unbraced `if`.
-
-If at the **60-minute mark** the Pilot can switch lanes and a blocker
-can be dropped but collision is not yet implemented, **flip the slice
-to "Pilot wins by default at 30 s"** and ship anyway — a one-sided MVP
-with a clear ending still satisfies the brief, and we can add the
-losing condition in a follow-up if any time remains. Note the cut in
-the review-queue claim.
+If at the **15-minute mark** the existing Lanes Playwright suite is
+red because of your changes, **revert the role-swap change** and keep
+only the invalid-id page. Append a one-line note to the review-queue
+claim that role-swap was reverted for risk reasons. A regressed MVP is
+much worse than an unswapped one.
 
 ## Notes
 
-- Commit every 15 minutes minimum.
-- Do not sign commits. Drop the signature with `-c commit.gpgsign=false`
-  if it prompts. Never `--no-verify`.
-- Update Status: `assigned` → `in-progress` → `claimed` (or `blocked`).
-- The Reviewer extends Playwright coverage when you claim.
+- Commit small. Do not sign commits. Drop the signature with
+  `-c commit.gpgsign=false` if it prompts. Never `--no-verify`.
+- Update Status: `assigned` → `in-progress` → `claimed`.
+- The role-swap change should be small — one or two new fields in the
+  DO state (e.g. a `roundIndex` or a flag for who is currently Pilot)
+  and a re-broadcast of `role` messages on each `countdown` entry.
+- The Reviewer will extend Playwright with a Play-Again role-swap
+  assertion when you claim.

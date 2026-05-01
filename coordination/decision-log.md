@@ -16,6 +16,70 @@ new entry that references the previous one.
 
 ---
 
+## 2026-05-01 11:42 — Polish pass: role swap on Play Again
+
+**Context:** MVP and launch post are both shipped (commits `a14123b` /
+`92dcc36` for the game; `55e91bd` for the post). About 1h 18m of deadline
+budget remain. The 11:36 decision committed to a small Lanes polish if
+the post landed quickly; the post landed in five minutes, so the budget
+is intact.
+
+**Options considered for polish (ranked by risk-adjusted value):**
+
+1. **Role swap on Play Again** — when either player presses "Play
+   again" in the `over` overlay, the DO swaps Pilot/Spawner before
+   transitioning to `countdown`. Plus a DX fix: invalid session ids
+   currently produce a bare 404; serve a small page telling the user
+   the link is malformed and offering "Create session" instead.
+2. **Best-of-three with score tracking.** Higher gameplay value but
+   adds new DO state (per-slot scores, match-vs-round phase
+   distinction) and a non-trivial UI change to existing tested
+   surfaces. Real risk of regressing the Lanes Playwright suite.
+3. **Theme / visual polish only.** Safe but the asymmetry of the
+   current MVP — one player permanently Pilot, the other permanently
+   Spawner — would still mean only half the game is being played. A
+   cosmetic change that does not deepen what is reviewed against the
+   brief.
+4. **Sound / haptics.** Mobile autoplay restrictions plus polish-only
+   value. Skip.
+
+**Choice:** Option 1. Role swap on Play Again, plus the 404 fix.
+
+**Rationale:**
+
+- **Asymmetry is the brief's hard constraint.** With roles permanently
+  fixed, only one player experiences each side of the asymmetric
+  design per session. Swapping on each round means both players
+  actually play both roles inside one match, which is the experience
+  the design was built to produce. That directly strengthens the brief's
+  "How did the asymmetry constraint shape what you built?" axis.
+- **Small surface, low regression risk.** The DO already has the
+  `over → countdown` transition wired in for Play Again. Swapping
+  roles inside that transition is a few lines plus an updated
+  per-client `role` broadcast on resume. Existing Lanes tests should
+  be extendable in place; no new state machine.
+- **Best-of-three is more gameplay value but more risk.** It rewrites
+  the round/match boundary on a tested surface in the last hour of a
+  hackathon. The cost of a regression now (roll back, lose the polish
+  pass entirely) outweighs the marginal gameplay gain. Hold this for
+  a hypothetical follow-up; the current polish pass already creates
+  the asymmetric round-pair experience even without explicit scoring.
+- **The 404 fix is a five-minute add-on while the Engineer is in the
+  area.** The Reviewer flagged it twice. Cheap goodwill on a debug
+  surface that is otherwise frustrating.
+
+**Concrete spec for the Engineer task:** see `current-task.md`. Strict
+no-scope-creep budget: ~25 minutes. If anything in the existing
+Lanes Playwright suite breaks and is not fixable inside another
+~10 minutes, revert the role-swap change and ship the 404 fix on its
+own — a regressed MVP is much worse than an unswapped one.
+
+**Reversible?** Yes — both pieces are independent of MVP correctness
+and can be reverted by the Engineer if they conflict with the existing
+test suite.
+
+---
+
 ## 2026-05-01 11:36 — MVP shipped; hold direction
 
 **Context:** Lanes vertical slice has just landed a Reviewer PASS at commit
