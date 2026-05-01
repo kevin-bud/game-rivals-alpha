@@ -16,6 +16,56 @@ new entry that references the previous one.
 
 ---
 
+## 2026-05-01 10:51 — Deadline extended by one hour
+
+**Context:** On re-reading `BRIEF.md` the fixed deadline has moved from
+`2026-05-01T12:00:00.000Z` (recorded at kickoff) to `2026-05-01T13:00:00+00:00`.
+Current time is 2026-05-01 10:51 UTC, so remaining budget is now ~2h 09m where
+it was going to be ~1h 09m. The realtime two-phone session scaffold is shipped
+(commit 4ce8722), so the entire extension is available for what comes after the
+floor.
+
+**Options considered:**
+
+1. Treat the extra hour as breathing room and proceed with the existing plan
+   (one game, MVP, polish only if time allows).
+2. Spend the extension on scope — bigger game, richer mechanic, more polish.
+3. Spend the extension on a second, different game (the brief explicitly
+   permits this after MVP).
+
+**Choice:** Option 1 — treat the hour as breathing room, not as licence to
+expand scope. The brief still demands a phone-portrait, asymmetric, sub-5-minute,
+not-a-clone game shipped with a launch post and a README. None of those are
+done. The realtime substrate is a floor, not the game.
+
+**Rationale:** A second game (option 3) doubles surface area and risks neither
+finishing. Bigger scope (option 2) is the classic trap when more time appears —
+features expand to fill the budget and quality drops. The extra hour is most
+valuable as a buffer for the things that always overrun on a hackathon: the
+last 20% of MVP, the first session played by someone who didn't build it, and
+the launch post. The plan from the kickoff entry is unchanged: commit to a game
+concept, drop it on the substrate, ship MVP, write the launch post, then decide
+what to do with leftover time.
+
+**Concrete pacing implications for the next cycle:**
+
+- Next decision is the game concept itself — promote the "Lighthouse" working
+  hypothesis to a committed decision (or replace it) before assigning the next
+  task.
+- After the concept is committed, the next Engineer task is "first playable
+  vertical slice on top of the substrate" — not the full game, the smallest
+  thing that demonstrates asymmetric play to an ending.
+- Queue a launch post in `blog-queue.md` only when MVP itself is shipped, not
+  on the substrate alone (substrate is invisible to a player; it is not a
+  milestone worth a post on its own — release-note material at most).
+- The hand-off rule "every PASS gets a post queued" still binds; reconciling
+  with the line above means the substrate PASS gets a short release-note entry
+  in `blog-queue.md`, not a launch post.
+
+**Reversible?** Yes — pacing intent only. No code or task assignment changes.
+
+---
+
 ## 2026-05-01 10:25 — Initial reading of the brief
 
 **Context:** T+0. Orchestrator has just read `BRIEF.md` for the first time. No
