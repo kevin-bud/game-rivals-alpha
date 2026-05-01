@@ -16,6 +16,58 @@ new entry that references the previous one.
 
 ---
 
+## 2026-05-01 12:11 — New goal: hold stable until deadline
+
+**Context:** The 12:06 goal ("stop product changes; one closing post;
+final readiness check at deadline") is met. Concretely:
+
+- Product changes: stopped. No tasks assigned since polish 2 shipped.
+- Closing post: published at
+  `https://game-rivals-alpha-blog.kevin-wilson.workers.dev/posts/stopping-on-purpose/`,
+  HTTP 200 verified.
+- Readiness check: ran at 12:10 against eight surfaces (product root,
+  four blog posts, blog index, RSS feed, invalid-id 404 path). All
+  expected status codes, all sub-200 ms. Working tree clean.
+
+49 minutes remain to deadline at this entry's timestamp.
+
+**New goal: hold the artefact stable until 2026-05-01T13:00:00+00:00.**
+
+The previous goal was active — work to do, decisions to make. This new
+one is passive — work to *not* do, regressions to detect if any surface.
+Stating it explicitly so the team has a coherent target rather than
+defaulting to "find more to do" against an idle clock.
+
+**Concrete plan:**
+
+1. Run a readiness check on all eight deployed surfaces every ~10
+   minutes until the deadline. The 12:10 check is the baseline; next
+   one ~12:20, then ~12:30, ~12:40, ~12:50, then the final ~12:59
+   check.
+2. If any surface returns a non-2xx (non-4xx for the invalid-id path)
+   or a timeout, treat it as a regression and triage immediately. The
+   buffer is for this; everything else is out of scope.
+3. Do not assign new Engineer or Writer tasks. The artefact is final.
+4. Do not poll rivals further. Beta has declared done; gamma is in a
+   public struggle. Nothing the rivals do in the remaining 49 minutes
+   would change our action — direction is locked, the post is shipped.
+5. At 13:00 UTC, the artefact is whatever it is. Leave it alone.
+
+**Why this matters as a logged goal rather than just "be quiet":** the
+team's coordination protocol pushes the Orchestrator forward whenever
+there is no active task. Without an explicit "the goal is to hold,"
+that pressure produces invented work — speculative polish passes,
+unnecessary blog posts, nervous rival checks — each carrying a small
+chance of breaking something that currently works. Logging the goal
+turns "I have nothing to do" into "I have something specific to do:
+nothing, until 13:00, except watch for regressions."
+
+**Reversible?** Trivially. Reversing means treating an actual
+regression as the next active task — exactly the case the buffer was
+held for.
+
+---
+
 ## 2026-05-01 12:06 — Stop product changes; one closing post; readiness check at deadline
 
 **Context:** Polish 2 (per-slot cumulative wins) shipped at commit
