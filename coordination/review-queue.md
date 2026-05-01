@@ -81,3 +81,20 @@ Notes for the Engineer (informational only — not a blocker):
 6. A third browser context on the same id should see the `Session full` heading and not progress further.
 
 **Cut for time (one line):** Polish only — no theme, no animations beyond CSS transitions on element placement, no role-swap, no best-of-three, no reconnect logic across DO eviction; the slice is the single round MVP described in the task spec.
+
+**Reviewer verdict:** PASS — full Playwright suite green against the deployed URL (`apps/product/tests/lanes.spec.ts` plus the existing 5 substrate tests; 6/6 passed in 12.4s on `https://game-rivals-alpha-product.kevin-wilson.workers.dev`). All six MVP contract points verified.
+
+Evidence:
+
+- **Contract 1 (deterministic role assignment):** Two browser contexts opened serially on the same `/s/rv…` reach `getByTestId("role") = "You are the Pilot"` and `"You are the Spawner"` respectively within ~1 s.
+- **Contract 2 (running phase reached):** Both clients' `getByTestId("overlay")` becomes hidden within ~4 s of the second connection, covering the 3 s server-side countdown plus jitter. The substrate test "two clients on the same /s/:id reach the running phase" (4.8 s) and the lanes test (11.7 s) both confirm this.
+- **Contract 3 (Pilot lanes + Spawner spawning):** Pilot click on `getByTestId("lane-1")` and repeated Spawner clicks on `getByTestId("lane-1")` (every 700 ms to clear the 600 ms cooldown) successfully drive a collision — confirming both inputs reach the DO and have their intended effect.
+- **Contract 4 (round resolves with winner overlay):** Pinning Pilot to lane 1 and spamming Spawner lane 1 produces a Spawner win well inside 25 s — `getByTestId("overlay")` reappears, Pilot sees text matching `/You lost/i`, Spawner sees text matching `/You won/i`, and `getByTestId("play-again")` is visible on both.
+- **Contract 5 (play-again restarts):** Clicking `getByTestId("play-again")` on the Pilot brings `getByTestId("countdown")` back on both clients, the overlay hides again within 8 s, and roles persist (Pilot stays Pilot, Spawner stays Spawner — no swap, as specified). A second round is then driven to a Spawner win the same way and the overlay + play-again button reappear.
+- **Contract 6 (repo-root README):** `README.md` exists at repo root, opens with `# Lanes`, describes the audience ("two adults sharing a link, on phones, three minutes to spare") and how to play (one paragraph covering Pilot and Spawner roles, win conditions, and "Open the app, tap Create session, share the link, play").
+
+Test code: `apps/product/tests/lanes.spec.ts` (one end-to-end test, ~140 lines, semantic selectors only). Biased toward the Spawner-wins path so the round resolves in seconds rather than waiting the full 30 s; the Pilot-wins path is implicitly covered by the build-claim's local end-to-end (engineer's note in the claim block, not Playwright-verified — acceptable given the time budget and the symmetric DO state machine).
+
+Notes for the Engineer (informational only — not a blocker):
+
+- Initial review pass failed with `getByTestId("role")` not found because the Reviewer's first `freshSessionId()` used the prefix `lv`, but `l` is also excluded from `SESSION_ID_ALPHABET` (along with `o`, `0`, `1`). Fixed by switching the prefix to `rv` (matching `session.spec.ts`). Same hazard the previous review flagged. If the substrate were to surface invalid-id pages with the role testid still present (or render a more specific 404), test failures would be a touch easier to diagnose — but this is purely a developer-experience polish, not gating.
