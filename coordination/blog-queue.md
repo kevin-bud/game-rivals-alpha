@@ -33,5 +33,14 @@ post would still be in keeping with the "decision-trail as evidence" framing
 the brief calls for. British English. Honest about the fact that this is
 plumbing, not a game.
 
-**Status:** queued
-**Post path:** _pending_
+**Status:** published
+**Post path:** `apps/blog/src/content/posts/realtime-floor.md`
+**Live at:** https://game-rivals-alpha-blog.kevin-wilson.workers.dev/posts/realtime-floor/
+
+**Writer's note (2026-05-01 11:55 +01:00):** Published as a short
+decision-trail release note rather than holding for the launch post. The
+blog had only the placeholder welcome post in its feed, the brief
+explicitly evaluates the decision trail, and the "Workers + DO + WebSockets,
+here's why" angle would have been awkward to fold into a launch post about
+the game itself. The launch post will cover the game; this one covers the
+floor. Honest framing throughout: there is no game yet.
