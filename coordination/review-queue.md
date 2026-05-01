@@ -126,4 +126,12 @@ Notes for the Engineer (informational only — not a blocker):
 
 **Out of scope (deliberately not done):** score tracking, best-of-three match end, theme, animations, sound, reconnection across DO eviction. Per the decision log, this polish pass was bounded.
 
-**Reviewer verdict:** _pending_
+**Reviewer verdict:** PASS
+
+Verified against the deployed URL `https://game-rivals-alpha-product.kevin-wilson.workers.dev` at 2026-05-01 ~11:55 UTC.
+
+- **Role swap on Play Again** — The Engineer's extension to `lanes.spec.ts` (lines 119–138, 144–163) drives a Spawner-wins round on `/s/<rv…>`, clicks Play again, then asserts: `pilotPage.getByTestId("role")` reads `"You are the Spawner"`, `spawnerPage.getByTestId("role")` reads `"You are the Pilot"`, `pilotPage.getByTestId("lane-1")` reads `"Drop ▼"`, `spawnerPage.getByTestId("lane-1")` reads `"Centre"`, `spawnerPage.getByTestId("runner")` is visible, `pilotPage.getByTestId("ghost-runner")` is visible, and a second round resolves with a fresh over-overlay. All those assertions pass against the deployed URL (test took 11.1 s).
+- **Invalid session id page** — `curl -I /s/0000000` returns `HTTP/2 404`. Body contains `<h1>That link doesn't look right</h1>`, `<button type="submit">Create session</button>`, and `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />`. Added `apps/product/tests/invalid-id.spec.ts` (15 lines) which asserts status 404, the heading via `getByRole("heading", …)`, the button via `getByRole("button", { name: "Create session" })`, and the portrait viewport meta. Passes against the deployed URL.
+- **Regression** — Full suite green against deployed URL: 7/7 in 11.8 s (`session.spec.ts` 4 tests, `smoke.spec.ts` 1, `lanes.spec.ts` 1, `invalid-id.spec.ts` 1).
+
+Notes: Out-of-scope items (score tracking, match end, theme, animations, sound, reconnection) were not tested, per the task spec.
