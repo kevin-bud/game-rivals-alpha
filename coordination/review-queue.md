@@ -135,3 +135,29 @@ Verified against the deployed URL `https://game-rivals-alpha-product.kevin-wilso
 - **Regression** — Full suite green against deployed URL: 7/7 in 11.8 s (`session.spec.ts` 4 tests, `smoke.spec.ts` 1, `lanes.spec.ts` 1, `invalid-id.spec.ts` 1).
 
 Notes: Out-of-scope items (score tracking, match end, theme, animations, sound, reconnection) were not tested, per the task spec.
+
+---
+
+## 2026-05-01 12:?? — Lanes polish 2: per-slot cumulative wins
+
+**Commit:** b746353
+**Deployed URL:** https://game-rivals-alpha-product.kevin-wilson.workers.dev
+**Sample session URL:** https://game-rivals-alpha-product.kevin-wilson.workers.dev/s/rvscore7
+
+**Claim:** The DO now keeps a `slotWins: [number, number]` counter indexed by connection-order slot (slot 0 = first connection, slot 1 = second). The counter starts at `[0, 0]` when the DO is created and increments inside the existing `running → over` transition, before the broadcast — `winnerSlot` is computed by finding which slot currently holds the round-winning role, so the increment survives the role swap that already runs on Play Again. No new transitions, no new buttons, no match end. State broadcasts to both clients now include `slotWins` and `yourSlot`; the client computes "you" vs "them" locally. Two new DOM surfaces render the score: a persistent header `You: X · Them: Y` (testids `score-self` / `score-other`) shown during `countdown` and `running`, and the same line under the existing "You won" / "You lost" message in the over overlay (testids `overlay-score-self` / `overlay-score-other`). Middle dot, no exclamation marks. No change to any existing test assertion.
+
+**Verification before claiming:**
+
+- `pnpm --filter product build` — passes.
+- `pnpm --filter product lint` — passes (no `any`, no curly violations, named exports, `type` not `interface`).
+- `pnpm deploy:product` — succeeded; deployed version `812fd665-1cf2-4ff0-a3b9-aa47c39331c0`.
+- Full Playwright suite against the deployed URL — 7/7 green in ~12.8 s (`tests/lanes.spec.ts`, `tests/session.spec.ts` 4 cases, `tests/smoke.spec.ts`, `tests/invalid-id.spec.ts`). One transient flake on `session.spec.ts:94` (which `openSessionPage` won the connection race) cleared on rerun — pre-existing race, not introduced by this change; the role assignment code is untouched.
+
+**How the Reviewer can verify (Playwright against the deployed URL):**
+
+1. Open `/s/rvscore7` in two browser contexts. Confirm `[data-testid="score-self"]` and `[data-testid="score-other"]` both read `0` once the countdown phase starts on each client.
+2. Pin the Pilot to `lane-1`, spam `lane-1` from the Spawner. When the over-overlay appears: the Spawner client should see `[data-testid="overlay-score-self"]` = `1` and `[data-testid="overlay-score-other"]` = `0`; the Pilot client should see the inverse (`0` / `1`).
+3. Click Play again. Roles swap (existing behaviour). Drive a second Spawner-wins round (the originally-Pilot client is now the Spawner; pin the new Pilot to lane 1 and spam lane 1 from the new Spawner). When the over-overlay reappears, the originally-Pilot client (this round's Spawner-winner) should now read `1 / 1` and the originally-Spawner client should read `1 / 1` as well — wins are per-slot, so both slots have one each after a 1-1 round split.
+4. Confirm the persistent header `[data-testid="score"]` is visible during `countdown` and `running` and hidden during `lobby` and `over` (the overlay carries the score during `over`).
+
+**Notes:** Out-of-scope per the task spec — no match end, no "New match" button, no score reset (closing the session is the reset), no theme, no animation, no sound, no reconnection. The DO mutation is purely additive on the existing `over` transition; existing winner detection, tick loop, collision detection, role swap, cooldowns and countdown are unchanged.

@@ -5,7 +5,7 @@ Set by the Orchestrator. Read by the Engineer. The Engineer updates the
 
 **Task:** Lanes polish 2 — per-slot cumulative wins
 **Assigned:** 2026-05-01 11:56
-**Status:** in-progress
+**Status:** claimed
 
 **Why this task:** With the role-swap polish in place, both players play
 both sides of the asymmetry across a session, but the rounds float
