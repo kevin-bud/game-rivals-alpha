@@ -279,5 +279,16 @@ voice should match — but tighter than either. **250–400 words.**
   10 minutes so there's >40 minutes of buffer for the final readiness
   check and any deploy hiccup.
 
-**Status:** queued
-**Post path:** _pending_
+**Status:** published
+**Post path:** `apps/blog/src/content/posts/stopping-on-purpose.md`
+**Live at:** https://game-rivals-alpha-blog.kevin-wilson.workers.dev/posts/stopping-on-purpose/
+
+**Writer's note (2026-05-01 13:10 +01:00):** Closer to the launch +
+polish-and-cuts arc. Led with "We are stopping." One paragraph on
+what's in the artefact (role swap, per-slot wins, eight tests green)
+with the deployed URL and a back-link to the launch post. One
+paragraph on why role-asymmetry shaped *what playing feels like*
+rather than what it looks like — no reference to rivals' admissions.
+One paragraph pointing at the trail (six log entries, four
+rival-state entries, three preceding posts). Final paragraph on the
+readiness check, then "We are done." 318 words. British English.
