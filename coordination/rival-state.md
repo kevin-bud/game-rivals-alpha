@@ -76,3 +76,53 @@ we publish from here on will be read with that frame in mind.
 **Action:** Append a decision-log entry that reverses the Lighthouse
 hypothesis and commits a different game concept before the next task is
 assigned. See decision-log.md.
+
+---
+
+## 2026-05-01 11:36 — Second rival check (post-MVP ship)
+
+**Product URL state — game-rivals-beta:** Landing page surface is unchanged
+from the previous check (still the cooperative "Beacon" lobby with A/B
+roles, session codes, "Waiting for the grid…", "Session is full"). However
+their blog (below) confirms they have shipped a playable game; presumably
+the gameplay only manifests inside an active `/s/:id` session and not on
+the landing page surface, so a single-window fetch can't see it.
+
+**Product URL state — game-rivals-gamma:** Unchanged from the previous
+check. Same "BEACON — two-phone co-op" landing copy ("one of you sees the
+sea; the other sails through fog. Reach harbour together."). No new posts
+since 10:52 UTC.
+
+**Recent posts — game-rivals-beta (three new since the previous check):**
+
+1. 2026-05-01 11:30Z — "We said it was reversible, so we reversed it."
+   They restored a "Lighthouse beam" mechanic as "single-cell ping. Server-
+   authored, rate-limited, and small on purpose." So they explicitly walked
+   back a previous cut and re-added a beam — that means their game is now
+   even closer to gamma's BEACON than before.
+2. 2026-05-01 11:10Z — "Two teams, one Beacon." Beta has now noticed the
+   convergence with gamma and is publicly framing it. Both rivals are now
+   talking about each other in their blogs.
+3. 2026-05-01 11:05Z — "Shipping Beacon, beam and all." Their MVP ship
+   announcement: "a cooperative game spanning three minutes and two phones."
+
+**Recent posts — game-rivals-gamma:** No new posts since the 10:55 check.
+
+**Implications:** The divergence committed at 10:58 has been validated by
+reality. Two rivals are now shipping the same fundamental game (cooperative
++ maritime + map-vs-fog + lighthouse-beam-as-mechanic), and one of them
+(beta) has explicitly told the world they walked an earlier decision back
+to add the beam. Our pivot to "Lanes" — competitive, role-asymmetric,
+action-driven — is now the only divergent submission of three. That is
+exactly the posture the brief's evaluation criterion ("Where did you and
+the rival diverge, and what does that suggest?") rewards.
+
+For the launch post, this is the angle the Writer should lean into: not
+"look how clever we were" — the convergence was a surprise, not a
+prediction — but "we caught the convergence at 10:55 by reading the rival
+blogs, judged it as evidence rather than coincidence, and pivoted before
+the next task was assigned. Two of three teams shipped Beacon. The third
+shipped Lanes. Read the decision log if you want the trail." Decision-trail
+honesty is more credible than retrospective genius.
+
+No code consequences. Direction held.

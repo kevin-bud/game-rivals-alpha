@@ -44,3 +44,79 @@ explicitly evaluates the decision trail, and the "Workers + DO + WebSockets,
 here's why" angle would have been awkward to fold into a launch post about
 the game itself. The launch post will cover the game; this one covers the
 floor. Honest framing throughout: there is no game yet.
+
+---
+
+## 2026-05-01 — Lanes MVP launch post
+
+**Milestone:** **Lanes** is shipped. Reviewer PASS at commit `a14123b`
+(implementation) / `92dcc36` (review tests). Deployed at
+`https://game-rivals-alpha-product.kevin-wilson.workers.dev`. Two phones
+share a `/s/:id` URL; first to connect is the Pilot, second is the
+Spawner. Pilot dodges blockers by tapping lanes. Spawner drops blockers
+into lanes, with a 500 ms-delayed view of where the Pilot's runner is.
+30-second round, clear winner, "Play again" resets. Phone-portrait,
+sub-five-minute, role-asymmetric, competitive. Repo-root `README.md`
+describes the game, audience, and how to play.
+
+**Angle (the Writer chooses, but here is the framing the Orchestrator
+wants leaned into):** This is the launch post the brief asks for —
+"what you built, what kind of fun it is meant to produce, what bets you
+made about the players." The decision-trail material is unusually
+strong here and worth surfacing honestly:
+
+- We started the morning with a working hypothesis ("Lighthouse" — a
+  cooperative lighthouse-keeper / blind-sailor game). It is in the
+  10:25 decision-log entry.
+- At 10:55 we read the rivals' blogs and product URLs. **Both rivals
+  had independently landed on essentially the same game we were about
+  to build** — cooperative, maritime, map-vs-fog, harbour goal. One of
+  them had even shipped a launch post titled "BEACON." A second post
+  ("The 20-second convergence") showed them noticing the parallel with
+  the *other* rival.
+- We caught the convergence as evidence rather than coincidence and
+  reversed our hypothesis at 10:58, before the next task was assigned.
+  The new direction was Lanes — competitive, role-asymmetric (different
+  inputs, different objectives, both players see the field),
+  action-driven. Three independent structural flips from the rival
+  baseline, made deliberately.
+- By 11:35 both rivals had shipped their Beacons. Two of three teams
+  shipped Beacon. The third shipped Lanes.
+
+The post should be honest: the convergence was a surprise, not a
+prediction. The clever bit isn't that we predicted it — it's that we
+caught it at the right moment to act on it, in a regime where catching
+it ten minutes later would have cost the pivot. Decision-trail honesty
+is more credible than retrospective genius. The brief evaluates teams
+on "Where did you and the rival diverge, and what does that suggest?"
+— this post is the artefact that answers that question for our team.
+
+**Concrete things to include:**
+
+- The deployed URL.
+- A one-paragraph description of what Lanes is and what playing it
+  feels like (Pilot's reflexes vs Spawner's prediction; the 500 ms
+  delayed view as the design centre-piece).
+- The bet about the players: two non-gamer adults on phones, three
+  minutes to spare. Lanes is built so the tutorial fits in one
+  sentence per role.
+- The pivot story above, with timestamps and a link to the decision
+  log entry (or quote it). British English. Honest about what is *not*
+  in the MVP (no role swap, no best-of-three, no theme).
+- Optionally a short "what we cut and why" — the role swap and
+  best-of-three are the conscious cuts; the deferred decision is in
+  `decision-log.md` 11:36.
+
+**Constraints:**
+
+- British English throughout.
+- Do not over-claim. The MVP is one round, same roles, "Play again"
+  loops the same matchup. Say so.
+- Do not name the rivals by team slug. "A rival team" / "another team"
+  is fine and matches the brief's framing. Cross-team blog cross-links
+  are unnecessary.
+- Time budget: ~1h 20m to deadline at queueing. Aim to ship the post
+  in under 30 minutes so there's room left for Lanes polish if any.
+
+**Status:** queued
+**Post path:** _pending_

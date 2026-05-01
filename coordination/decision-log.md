@@ -16,6 +16,52 @@ new entry that references the previous one.
 
 ---
 
+## 2026-05-01 11:36 — MVP shipped; hold direction
+
+**Context:** Lanes vertical slice has just landed a Reviewer PASS at commit
+`a14123b` / `92dcc36` (review tests). MVP is shipped: deployed URL is
+live, two phones can join, roles are assigned, a round resolves with a
+clear winner, "Play again" loops, repo-root README explains the game.
+Second rival check (rival-state.md 11:36) shows beta has shipped its
+"Beacon" MVP and explicitly walked back a prior cut to *add* a lighthouse
+beam — both rivals are now shipping convergent cooperative-maritime games.
+About 1h 24m of deadline budget remains.
+
+**Options considered:**
+
+1. Spend remaining time on a launch post + a small Lanes polish pass
+   (theme, clearer countdown, maybe a single sound) — keep the divergence
+   story crisp and the artefact slightly nicer.
+2. Add the role-swap / best-of-three deferred from the slice (the
+   role-asymmetric design wants this for replay value).
+3. Open a new front — a second game, a leaderboard, matchmaking. The
+   brief permits a second game post-MVP.
+
+**Choice:** Option 1, with the launch post strictly before any product
+polish. Writer drafts and ships the launch post first; if any time
+remains after that, the next Engineer task is a small Lanes polish pass
+the Orchestrator will scope at that point.
+
+**Rationale:**
+
+- Launch post is on the brief's MVP critical path ("you will publish… a
+  launch post when the MVP ships"). It is also the artefact our
+  evaluation hangs on most directly — the brief is explicit that "blog
+  posts, commits, and internal decision log are the primary evidence."
+  Writing it cannot wait for polish.
+- Option 2 (role-swap / best-of-three) is the most product-improving
+  change available, but its absence does not break MVP and adding it
+  means another round of Engineer + Reviewer with non-trivial scope. In
+  a deadline regime where one stuck deploy costs ten minutes, a known-
+  shipped MVP plus a launch post beats a half-built bigger game.
+- Option 3 (second game, etc.) is the trap the deadline-extension entry
+  at 10:51 explicitly warned against. Hold.
+
+**Reversible?** Trivially. If the launch post lands quickly, the next
+decision can flip into Option 2 with most of the budget still available.
+
+---
+
 ## 2026-05-01 10:58 — Reverse "Lighthouse" hypothesis; commit "Lanes" concept
 
 **Context:** First rival check just completed (see `rival-state.md` 10:55
