@@ -3,103 +3,101 @@
 Set by the Orchestrator. Read by the Engineer. The Engineer updates the
 `Status` field as work progresses.
 
-**Task:** Lanes polish — role swap on Play Again + invalid-id page
-**Assigned:** 2026-05-01 11:42
-**Status:** shipped
+**Task:** Lanes polish 2 — per-slot cumulative wins
+**Assigned:** 2026-05-01 11:56
+**Status:** assigned
 
-**Why this task:** MVP shipped at commit `a14123b` and the launch post is
-live. About 1h 18m of deadline budget remain. The 11:42 decision-log entry
-explains the trade-off; the short version is that with roles permanently
-fixed for the lifetime of the session, only one player experiences each
-side of the asymmetric design. Swapping roles on each "Play again" makes
-both players actually play both roles inside one match, which is what the
-asymmetric design was built to produce.
+**Why this task:** With the role-swap polish in place, both players play
+both sides of the asymmetry across a session, but the rounds float
+independently — there is no "we're 2-1, this is the decider" feeling
+because the product never tells either player that. Per-slot cumulative
+wins produces that feeling without introducing match-end logic. The
+11:56 decision-log entry has the full rationale; key points:
 
-**Time budget:** Strict 25 minutes from assignment to claim. If you push
-past it, stop and ship what you have. Deadline `2026-05-01T13:00:00+00:00`.
+- Track wins per *slot* (slot A = first connection, slot B = second),
+  not per role. Roles swap each round; slots are stable.
+- Increment at round end, in the same DO transition that already emits
+  the `over` state with a winner. No new transition.
+- No "New match" button, no match end, no best-of-three logic. Round
+  loop continues until players close.
+
+**Time budget:** Strict 20 minutes from assignment to claim. Hard
+escalation rule below.
 
 ## What to build
 
-1. **Role swap on Play Again.** When the DO transitions out of `over` in
-   response to a `{type:"play_again"}` message from either client, swap
-   the Pilot and Spawner role assignments before re-broadcasting `role`
-   messages and entering `countdown`. The first round's roles still
-   follow the existing rule (first connection = Pilot, second = Spawner).
-   Subsequent rounds alternate: round 2 swaps, round 3 swaps back, and
-   so on. Both clients should receive a fresh `{type:"role", role}`
-   message at the start of each new round so their UI updates lane
-   labels ("← Left / Centre / Right →" for Pilot, "Drop ← / Drop ▼ /
-   Drop →" for Spawner).
-2. **Client UI on role change.** The page must visibly re-render when a
-   new `role` message arrives mid-session: the role label
-   (`getByTestId("role")` text), the lane button labels, and any
-   role-conditional rendering (Pilot sees `runner`, Spawner sees
-   `ghost-runner`). Test this — the existing `getByTestId("role")`
-   assertion should still match after a Play Again, with the *opposite*
-   role text.
-3. **Invalid session id page.** Currently a request to `/s/<bad-id>`
-   (where `bad-id` contains characters outside `SESSION_ID_ALPHABET`,
-   e.g. `0`, `1`, `l`, `o`, or anything not in `[a-z2-9]`, or has the
-   wrong length) appears to 404 with no useful body. Replace this with
-   a small HTML page (same minimal portrait viewport as the rest of the
-   app) that says "That link doesn't look right" in British English,
-   with a one-sentence explanation that session links are
-   auto-generated, plus a single "Create session" button that POSTs to
-   the existing session-creation endpoint. Use HTTP status 404 — search
-   engines and link previews benefit from the correct status; the page
-   body is what matters for humans.
-4. **Stack rules unchanged.** Curly braces on every conditional, no
-   `any`, prefer `type`, named exports, British English in human prose.
+1. **DO state.** Add `slotWins: [number, number]` to the DO state
+   (indexed 0 and 1, matching the existing slot indices used for role
+   assignment). Initialise to `[0, 0]` at DO creation.
+2. **Increment at round end.** In the existing transition that takes
+   the DO from `running` to `over` with a winner, *before* broadcasting
+   `over`, increment `slotWins[winnerSlot]` where `winnerSlot` is the
+   slot index of the player whose role just won the round. Mapping:
+   - If the round-winning role is `pilot`, `winnerSlot` = whichever
+     slot is currently assigned the Pilot role.
+   - If the round-winning role is `spawner`, similarly for Spawner.
+3. **State broadcast.** Include `slotWins` in the per-client state
+   message during `countdown`, `running`, and `over` phases. Each
+   client also already knows their own slot index from the existing
+   `role` message; you do not need to re-send it. The client can
+   compute "yours" vs "theirs" locally.
+4. **Client rendering.**
+   - During `running` and `countdown`: a small persistent header at
+     the top of the field reading "You: X · Them: Y" (British
+     punctuation, middle dot fine, no exclamation marks). Use
+     `data-testid="score-self"` and `data-testid="score-other"` on
+     the two numbers so the Reviewer can assert.
+   - During `over`: include the same score line under the
+     "You won" / "You lost" message in the existing overlay.
+5. **No new buttons, no match end.** Keep the existing "Play again"
+   flow exactly as it is. The score keeps incrementing across rounds.
+   There is no "reset score" or "new match" UI.
+6. **Stack rules unchanged.** Curly braces, no `any`, prefer `type`,
+   named exports, British English.
 
 ## Definition of done
 
 - `pnpm --filter product build` passes.
 - `pnpm --filter product deploy` succeeds and the deployed URL responds.
-- Existing Playwright tests (`apps/product/tests/session.spec.ts`,
-  `apps/product/tests/lanes.spec.ts`, `apps/product/tests/smoke.spec.ts`)
-  all still pass against the deployed URL — including the existing role
-  assertions on first connection.
-- Manual smoke (you, two browser windows on the same `/s/:id`): play one
-  round to completion, click "Play again", verify both clients now show
-  the *opposite* role label and the runner / ghost-runner are flipped to
-  the other client.
-- Manual smoke for the invalid-id page: hit `/s/0000000` (contains `0`,
-  rejected) and verify the new page renders with a "Create session"
-  button.
+- All existing Playwright tests (`smoke.spec.ts`, `session.spec.ts`,
+  `lanes.spec.ts`, `invalid-id.spec.ts`) still pass against the deployed
+  URL — no regressions.
+- Manual smoke (you, two browser windows on the same `/s/:id`):
+  - Round 1: starts with `0 · 0` on both clients. Drive a Spawner-wins
+    round (Pilot pinned to lane 1, Spawner spams lane 1).
+  - On the over overlay, the originally-Spawner client should see
+    `You: 1 · Them: 0`; the originally-Pilot client `You: 0 · Them: 1`.
+  - Click Play again. Roles swap. Drive a Pilot-wins round (Spawner
+    spams a different lane to the new Pilot's chosen lane, or the new
+    Pilot dodges).
+  - On the next over overlay, the score should reflect the new
+    cumulative state correctly from each client's perspective.
 - The Engineer appends a completion claim to `coordination/review-queue.md`
-  with deployed URL, sample `/s/:id` URL using only valid alphabet chars
-  (e.g. `polish8`, `swapxyz`), and the invalid-id URL the Reviewer should
-  hit (`/s/0000000` is a fine test case).
+  with deployed URL and a sample `/s/:id` URL.
 - Status flipped to `claimed`.
 
 ## Out of scope (do not start)
 
-- Score tracking. No "P 1 - S 0" counter. The decision log explicitly
-  defers best-of-three with score for risk reasons.
-- Match end / declared match winner. Play Again continues to loop
-  rounds indefinitely.
-- Theme, animations beyond what already exists, sound, haptics.
-- Reconnection across DO eviction.
-- Any change to the substrate's connection-count / session-full
-  behaviour. The existing substrate tests must continue passing.
-- Any change to the existing tick / collision / cooldown logic. Touch
-  only role assignment, the Play Again transition, and the 404 page.
+- Match end / declared match winner. No best-of-three. No "New match"
+  button.
+- Score reset. The score persists for the lifetime of the DO; closing
+  the session is the reset.
+- Theme, animations, sound, haptics, reconnection across DO eviction.
+- Any change to existing tick / collision / cooldown / role-swap
+  behaviour. Add only.
 
 ## Hard escalation rule
 
-If at the **15-minute mark** the existing Lanes Playwright suite is
-red because of your changes, **revert the role-swap change** and keep
-only the invalid-id page. Append a one-line note to the review-queue
-claim that role-swap was reverted for risk reasons. A regressed MVP is
-much worse than an unswapped one.
+If at the **15-minute mark** any existing Playwright test is red
+because of your changes, **revert the score change entirely** and
+flip Status to `failed` with a one-line note. The MVP+role-swap state
+is the floor we protect; this polish does not justify any regression.
 
 ## Notes
 
 - Commit small. Do not sign commits. Drop the signature with
   `-c commit.gpgsign=false` if it prompts. Never `--no-verify`.
-- Update Status: `assigned` → `in-progress` → `claimed`.
-- The role-swap change should be small — one or two new fields in the
-  DO state (e.g. a `roundIndex` or a flag for who is currently Pilot)
-  and a re-broadcast of `role` messages on each `countdown` entry.
-- The Reviewer will extend Playwright with a Play-Again role-swap
-  assertion when you claim.
+- Update Status: `assigned` → `in-progress` → `claimed` (or `failed`).
+- The change is small — one new field on the DO state, one increment
+  in the existing `over` transition, two new DOM elements. Resist any
+  urge to refactor surrounding code.

@@ -16,6 +16,90 @@ new entry that references the previous one.
 
 ---
 
+## 2026-05-01 11:56 — Reverse the score deferral; add per-slot wins
+
+**Context:** Polish pass shipped (commit `8681e56` / `ecfaf48`) and the
+"polish + cuts" blog post is live. Final readiness check just ran:
+deployed product, all three blog posts, RSS feed, and the new invalid-id
+404 page all return their expected status codes with sub-200 ms response
+times. ~65 minutes remain to deadline. The Engineer landed the previous
+polish in ~10 minutes; the Writer landed the post in ~7. The realistic
+round-trip for one more bounded Engineer task is well inside the
+remaining budget. The 11:42 entry deferred score tracking on risk
+grounds; that risk calculus has now changed.
+
+**Reverses (in part) the 11:42 deferral.** The 11:42 entry held that
+"adding new DO state… in the last hour of a hackathon" was too risky
+for the marginal gameplay gain. Two facts have shifted since:
+
+1. The role-swap polish landed cleanly — no regressions in the existing
+   suite, Engineer found the change small. That is direct evidence the
+   DO surface is more amenable to careful extension than the 11:42 risk
+   model assumed.
+2. Time budget is comfortable, not pressured. 65 minutes is enough for
+   an Engineer pass plus a Reviewer pass plus a meaningful buffer to
+   *roll back* the change if it regresses anything. At 11:42 the budget
+   was tighter and a regression would have meant losing the polish pass
+   entirely.
+
+**Options considered:**
+
+1. **Stop here and protect.** Brief is satisfied. Argument: zero risk,
+   zero new value beyond a fresh deploy.
+2. **Cumulative per-slot wins, no match end.** Track wins per *slot*
+   (slot A = first connection, slot B = second), increment at round end,
+   broadcast and render in the overlay and a persistent header. No
+   "best-of-three" match-ending logic; the round loop continues until
+   players close. Survives role swaps cleanly because slots don't
+   change, only roles do.
+3. **Full best-of-three with declared match winner and "New match"
+   button.** More gameplay value, more state changes — modifies the
+   tested `over → countdown` transition path with a new branch, and
+   requires either a "New match" UI button or another transition.
+4. **Tutorial copy / onboarding hint.** Tiny, but the existing labels
+   already say what the buttons do; marginal value is low.
+5. **Theme.** Open-ended, hard to scope tightly.
+
+**Choice:** Option 2. Per-slot cumulative wins, no match end, no "New
+match" button.
+
+**Rationale:**
+
+- **Adds the one thing rounds-without-score lack: a sense of stakes
+  carrying over.** "We're 2-1, this is the decider" is the feeling the
+  current product can't produce. Score persistence creates it without
+  needing match-end logic.
+- **Risk is small and bounded.** Pure read-only-additive state in the
+  DO. The increment happens at exactly the moment the DO already
+  emits an `over` state with a winner — no new transition is needed.
+  Existing tests assert *winner* in the over message; they will be
+  unaffected by an *additional* `slotWins` field. Render is two new
+  DOM elements.
+- **Slot-indexed (not role-indexed) is the right model.** Roles swap;
+  slots don't. Tracking by slot gives each player a stable "your
+  count vs theirs" view that survives the role swap. This is also the
+  right answer to the brief's "asymmetric" framing: across a session,
+  each slot's score reflects how well *that human* performed across
+  *both* roles.
+- **No match end / no best-of-three deliberate.** Adding match-end
+  logic introduces a real new state-machine branch and a second UI
+  button (New Match vs Play Again). That is the change the 11:42 entry
+  was pessimistic about, and the pessimism still applies. Per-slot
+  cumulative wins gives most of the felt-stakes value with none of
+  that risk.
+
+**Concrete spec** (see `current-task.md`): per-slot win counter, render
+in `over` overlay ("You: 2 · Them: 1") and as a small persistent
+header during `running` and `countdown`. Reset only by closing the
+session (i.e. the DO itself). 20-minute Engineer budget; explicit
+rollback rule if the existing suite goes red.
+
+**Reversible?** Yes — pure additive state. Reverting to the 11:42 state
+is a `git revert` of the polish-2 commits; the substrate, MVP, and
+role-swap polish all remain intact below it.
+
+---
+
 ## 2026-05-01 11:42 — Polish pass: role swap on Play Again
 
 **Context:** MVP and launch post are both shipped (commits `a14123b` /
