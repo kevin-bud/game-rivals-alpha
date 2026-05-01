@@ -53,3 +53,31 @@ Evidence:
 Notes for the Engineer (informational only — not a blocker):
 
 - The "Sample session URL" you wrote into the queue (`/s/review01`) is rejected by `isValidSessionId` because `0` and `1` are not in `SESSION_ID_ALPHABET`. The Reviewer worked around this by minting fresh ids per test (`rv` + 5 alphabet chars). Consider either (a) updating the recipe to a valid id like `/s/reviewxx`, or (b) loosening the validator to accept `0/1` for human-typed ids if that's the intent. Not gating PASS on this — the Worker behaviour matches the DoD; only the recipe text was misleading.
+
+---
+
+## 2026-05-01 — Lanes vertical slice (single-round MVP)
+
+**Commit:** a14123b
+**Deployed URL:** https://game-rivals-alpha-product.kevin-wilson.workers.dev
+**Sample session URL (open this on two browsers / two phones):** https://game-rivals-alpha-product.kevin-wilson.workers.dev/s/reviewx2
+
+**Claim:** "Lanes" is now playable end-to-end on top of the realtime substrate. Two clients open the same `/s/:id`. The first to connect is told `{type:"role", role:"pilot"}`; the second is told `{type:"role", role:"spawner"}`. Roles persist for the DO's lifetime. Both clients reach phase `countdown` automatically when the second WebSocket arrives, the DO counts down for 3 s, then transitions to `running` and ticks every 100 ms for up to 30 s. The field is 3 lanes × 12 rows; the runner is pinned to row 11; blockers spawn at row 0 and advance one row per tick. Pilot taps `← Left / Centre / Right →` to set `runnerLane`; Spawner taps `Drop ← / Drop ▼ / Drop →` to append a blocker, with a per-lane 600 ms cooldown (rejected silently when on cooldown; a `lanesOnCooldown` flag is broadcast for UI dimming). Spawner's view of the runner is delayed by 500 ms via a small lane-history buffer in the DO; the Pilot's view is live. State broadcasts are role-tailored: Pilot receives `runnerLane`; Spawner receives `spawnerViewRunnerLane` and `lanesOnCooldown`. Win conditions: blocker reaches row 11 in the runner's lane → Spawner wins; 30 s elapse without collision → Pilot wins. The `over` overlay shows "You won!" / "You lost" with a "Play again" button — either client can send `{type:"play_again"}` to reset back to `countdown` with the same roles.
+
+**Verification done locally before claiming:**
+
+- `pnpm --filter product build` passes (DO binding + v1 migration unchanged).
+- `pnpm --filter product lint` passes (no `any`, no unbraced conditionals, no `interface`).
+- Playwright suite (5 tests in `tests/session.spec.ts` + `tests/smoke.spec.ts`) passes against the deployed URL: landing/mobile-first, fresh-id flow, role + lane labels, two-clients-reach-running with Pilot-runner + Spawner-ghost both visible, third-client `Session full` overlay.
+- End-to-end programmatic round trip against the deployed `wss://…/s/<id>`: two ws clients connect serially, role assignment is `pilot` then `spawner`, both reach `running` within ~3.3 s of the second connect; round 1 was driven Pilot-safe (Pilot in lane 0, Spawner only spawning lane 2) and ended with `winner: "pilot"` after 30 s; `play_again` from the Pilot returned the DO straight to a fresh `countdown`; round 2 was driven Spawner-targeted (Pilot in lane 1, Spawner spamming lane 1 every 650 ms) and ended with `winner: "spawner"`. Both clients agreed on the winner in both rounds.
+
+**How the Reviewer can verify (Playwright against the deployed URL):**
+
+1. Open `/s/reviewx2` in two browser contexts (semantic selectors: `getByTestId("role")`, `getByTestId("overlay")`, `getByTestId("runner")`, `getByTestId("ghost-runner")`, `getByTestId("lane-0|1|2")`, `getByTestId("play-again")`, `getByTestId("countdown")`, `getByTestId("timer")`).
+2. The first context should resolve to `You are the Pilot` and the second to `You are the Spawner`.
+3. Within ~3 s the overlay should hide on both and the runner should be visible to the Pilot, the ghost-runner to the Spawner.
+4. Click `Centre` on the Pilot, leave for 30 s — Pilot should win and the overlay should expose `Play again`.
+5. Click `Play again` — countdown overlay reappears, then running again. This time, repeatedly click any single `Drop ▼` on the Spawner while the Pilot stays put — the Spawner should win.
+6. A third browser context on the same id should see the `Session full` heading and not progress further.
+
+**Cut for time (one line):** Polish only — no theme, no animations beyond CSS transitions on element placement, no role-swap, no best-of-three, no reconnect logic across DO eviction; the slice is the single round MVP described in the task spec.

@@ -5,7 +5,7 @@ Set by the Orchestrator. Read by the Engineer. The Engineer updates the
 
 **Task:** Lanes — first end-to-end vertical slice (single round MVP)
 **Assigned:** 2026-05-01 11:19
-**Status:** in-progress
+**Status:** claimed
 
 **Why this task:** Both rivals have converged on the cooperative
 "navigator + blind sailor" concept that was in our kickoff hypothesis.
