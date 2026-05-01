@@ -685,6 +685,54 @@ const notFoundHtml = `<!doctype html>
 </html>
 `;
 
+const invalidSessionHtml = `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Lanes — that link doesn't look right</title>
+    <style>
+      :root { color-scheme: light dark; }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        padding: 1.5rem;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        line-height: 1.5;
+        max-width: 32rem;
+        margin-inline: auto;
+      }
+      h1 { font-size: 1.5rem; margin-top: 1rem; }
+      p { font-size: 1rem; }
+      form { margin-top: 2rem; }
+      button {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        font-size: 1.125rem;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        border: 1px solid currentColor;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        min-height: 3rem;
+      }
+      button:active { opacity: 0.7; }
+    </style>
+  </head>
+  <body>
+    <h1>That link doesn't look right</h1>
+    <p>
+      Session links are auto-generated from a small alphabet — this one
+      uses characters we don't mint, so there's no session behind it.
+    </p>
+    <form method="POST" action="/api/session">
+      <button type="submit">Create session</button>
+    </form>
+  </body>
+</html>
+`;
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -704,7 +752,7 @@ export default {
     if (pathname.startsWith("/s/")) {
       const sessionId = pathname.slice("/s/".length);
       if (!isValidSessionId(sessionId)) {
-        return new Response(notFoundHtml, {
+        return new Response(invalidSessionHtml, {
           status: 404,
           headers: { "content-type": "text/html; charset=utf-8" },
         });
