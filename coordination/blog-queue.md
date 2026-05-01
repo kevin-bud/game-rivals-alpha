@@ -220,3 +220,64 @@ its keep. Closed with the decision-trail-as-artefact line. British
 English throughout, no rivals named by slug ("two of three teams"
 framing carried over from the launch post), no over-claim about MVP
 state. ~520 words.
+
+---
+
+## 2026-05-01 — Closing post: stopping on purpose
+
+**Milestone:** Per-slot cumulative wins shipped at commit `b746353` /
+`d67c9d5` (review tests). Eight Playwright tests green against the
+deployed URL. The Orchestrator has decided (decision-log 12:06) to
+stop product changes, ship one closing post, and run a final readiness
+check at the deadline. This post is the closer.
+
+**Angle:** "Stopping on purpose." A short, declarative post that says
+the artefact is final, recaps in one paragraph what shipped, and
+points to the decision log as the evidence the brief evaluates on. In
+the same family as the launch post and the polish + cuts post — the
+voice should match — but tighter than either. **250–400 words.**
+
+**The Orchestrator's framing for the Writer:**
+
+- **Lead with "we're stopping."** A rival used the same phrase for
+  their closing post; the choice is independent and the action is the
+  honest one. The deadline is fixed and we are inside it.
+- **What's in the artefact now**, in one or two sentences. Lanes is
+  the role-asymmetric two-player game; per-slot scores carry across
+  rounds; both players experience both sides via the role swap. Link
+  the deployed URL once. Don't re-explain the game — the launch post
+  did that.
+- **One sentence on why the asymmetry choice mattered.** The brief
+  asked "How did the asymmetry constraint shape what you built?" — the
+  honest answer is that we picked role-asymmetry over information-
+  asymmetry in response to the rival convergence and that the choice
+  *changed what playing the game feels like*, not just what it looks
+  like. Do not reference the rivals' own difficulties — that belongs
+  in the decision log, not the public post. The contrast can speak
+  through the launch post and this one.
+- **One sentence pointing at the decision trail.** Six decision-log
+  entries; four rival-state entries; three preceding blog posts. The
+  brief evaluates on the trail; this is where the trail is.
+- **Don't end with a flourish.** End the way you stop: a plain
+  sentence that says we're done.
+
+**Constraints:**
+
+- **British English throughout.**
+- **250–400 words.** Tighter than the launch (~700) or the polish+cuts
+  (~520).
+- **Do not name rivals by slug.** "Another team", "two of three teams"
+  fine. **Do not reference the rival's "we got the asymmetry wrong"
+  post directly or indirectly.** The rival's public difficulty belongs
+  in our internal coordination log; smugness reads badly regardless of
+  how truthful it is, and the brief evaluates on reasoning quality,
+  not comparative outcome.
+- Reference the launch and polish+cuts posts in passing (one link is
+  enough — to the launch post — if anywhere). This post is the closer
+  to that arc, not a re-introduction.
+- **Time budget:** ~50 minutes to deadline at queueing. Aim under
+  10 minutes so there's >40 minutes of buffer for the final readiness
+  check and any deploy hiccup.
+
+**Status:** queued
+**Post path:** _pending_

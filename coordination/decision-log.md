@@ -16,6 +16,83 @@ new entry that references the previous one.
 
 ---
 
+## 2026-05-01 12:06 — Stop product changes; one closing post; readiness check at deadline
+
+**Context:** Polish 2 (per-slot cumulative wins) shipped at commit
+`b746353` with Reviewer PASS and a new `score.spec.ts` that proves the
+slot-vs-role indexing was the right model. ~54 minutes remain to deadline.
+Fourth rival check (rival-state.md 12:05) reveals beta has declared done
+("Stopping on purpose") and gamma has publicly admitted their asymmetry
+mechanic isn't working ("We got the asymmetry wrong"). The rival landscape
+is now effectively stable.
+
+The product is in a strong state:
+
+- MVP shipped (one round, Pilot vs Spawner, role-asymmetric, competitive,
+  phone-portrait, sub-five-minute, not a clone).
+- Roles swap on Play Again so both players experience both sides.
+- Per-slot cumulative wins make stakes carry over across rounds.
+- Invalid session ids show a helpful 404 page.
+- All eight Playwright tests green against the deployed URL.
+- Three blog posts published: substrate floor, MVP launch with the pivot
+  story, polish + cuts. Six decision-log entries plus this one. Four
+  rival-state entries.
+
+**Options considered:**
+
+1. **Stop product changes; queue one closing post; final readiness check
+   at deadline.** Decision-trail story is complete and the artefact is
+   solid; protect the floor.
+2. **One more bounded Engineer task** (theme, animation polish, sound,
+   match-end with declared winner). Each adds non-zero regression risk
+   to a tested multiplayer state machine; with the artefact already in
+   a strong state, the marginal value is low and the downside is much
+   bigger than the upside.
+3. **A second, different game.** The brief permits this after MVP. The
+   deadline-extension entry at 10:51 explicitly named this trap; the
+   trap has not become less of a trap as the deadline got closer.
+
+**Choice:** Option 1.
+
+**Rationale:**
+
+- **The decision-trail story has a beginning, middle, and end now.**
+  Adding more product changes risks dilating the narrative — "and then
+  we also added a sound effect" — without strengthening any of the
+  brief's evaluation axes. The closing post is the artefact that
+  declares done, and "stopping on purpose" (a phrase a rival also chose
+  for the same kind of post) is an honest action.
+- **Risk asymmetry favours stopping.** A regression introduced now
+  costs the better part of an hour to chase; a closing post that lands
+  badly costs ten minutes to revise. The upside ceiling on more product
+  work is small; the downside floor on a regression is large. Stop.
+- **Gamma's "we got the asymmetry wrong" admission is decision-trail
+  evidence, not public material.** The rival's public difficulty
+  belongs in our internal coordination log, not in our public posts.
+  Smugness reads badly regardless of how truthful the underlying
+  observation is, and the brief evaluates on reasoning quality, not
+  comparative outcome.
+
+**Concrete plan from here:**
+
+1. Queue one closing post in `blog-queue.md`. Angle: "Stopping on
+   purpose" — what shipped, what the decision trail shows, why we
+   stopped here. ~250–400 words. British English. No reference to
+   rivals' specific admissions; the launch post already framed the
+   divergence.
+2. Hand to Writer.
+3. After the post lands, run a final readiness check on every deployed
+   surface (`/`, the three blog posts, the RSS feed, the invalid-id
+   404). If anything is amber, the remaining buffer is for fixing
+   that, not adding scope.
+4. At deadline, leave the artefact alone.
+
+**Reversible?** Trivially. Reversing means asking the Engineer for one
+more task. The remaining budget after the closing post is the
+reversal window.
+
+---
+
 ## 2026-05-01 11:56 — Reverse the score deferral; add per-slot wins
 
 **Context:** Polish pass shipped (commit `8681e56` / `ecfaf48`) and the

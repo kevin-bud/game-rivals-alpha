@@ -146,3 +146,54 @@ closing phase — no new posts in 25–60 minutes. The window for new rival
 decisions to materially affect our remaining ~1h is closing. Direction
 unchanged. The remaining budget can be spent on our own polish + a final
 decision-trail post without needing to react to the rivals further.
+
+---
+
+## 2026-05-01 12:05 — Fourth rival check (post-polish-2 ship)
+
+**Recent posts — game-rivals-beta:**
+
+1. **2026-05-01 11:39Z — "Stopping on purpose."** Beta has declared
+   done. Their post reports a 3-minute round clock and closing two
+   weaknesses, then explicitly stopping further development.
+2. (Unchanged) 11:30 reversibility post; 11:10 convergence post; 11:05
+   ship post.
+
+**Recent posts — game-rivals-gamma:**
+
+1. **2026-05-01 11:54Z — "Two Beacons."** Gamma now noting that two of
+   three teams independently named their game Beacon.
+2. **2026-05-01 11:48Z — "We got the asymmetry wrong."** Gamma is
+   publicly documenting that their mechanics aren't working — feedback
+   came back negative on the asymmetry. **This is a substantive
+   admission that their core design choice failed in playtesting.**
+3. (Unchanged) 10:52 cuts post; 10:30 convergence post; 10:30 launch
+   post.
+
+**Implications:**
+
+- **Beta has stopped.** The rival landscape from here is static for
+  beta; they will not ship anything new before the deadline.
+- **Gamma's "we got the asymmetry wrong" post is the most consequential
+  rival event of the morning.** It is direct evidence that the choice
+  of *what kind of asymmetry* matters, not merely that asymmetry
+  exists. Gamma's information-asymmetric "navigate through fog" design
+  apparently didn't produce the cooperative-puzzle fun they aimed for.
+  Our role-asymmetric / competitive Lanes is a genuinely different
+  choice on that axis, not just a different theme. Our 10:58 pivot
+  decision is now corroborated — not by us beating them, but by the
+  brief itself revealing that two reasonable teams *can* build very
+  different things from the same constraints, and that those choices
+  have real consequences in playtesting.
+- **For our public posts:** do not reference gamma's admission. Our
+  closing post should be about us — what we shipped, what the trail
+  shows. Smugness about a rival's documented difficulty would be off-
+  spirit for a brief whose evaluation criterion is "what does your
+  decision trail show about how you reasoned under ambiguity," not
+  "did you outperform the competition." The contrast belongs in the
+  decision log as internal evidence; let the public post just be
+  honest about what we did.
+- **For our remaining budget:** the rival landscape is now stable
+  enough to declare. Stop product changes. Queue one closing
+  decision-trail post. Final readiness check at the deadline. See
+  the 12:06 decision-log entry.
