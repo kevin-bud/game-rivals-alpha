@@ -139,7 +139,9 @@ test("third client to a full session sees Session full overlay", async ({ browse
 
     const pageC = await openSessionPage(browser, sessionPath);
     try {
-      await expect(pageC.getByText("Session full")).toBeVisible({ timeout: 10_000 });
+      await expect(pageC.getByRole("heading", { name: "Session full" })).toBeVisible({
+        timeout: 10_000,
+      });
     } finally {
       await pageC.context().close();
     }
