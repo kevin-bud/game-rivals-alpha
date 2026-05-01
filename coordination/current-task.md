@@ -5,7 +5,7 @@ Set by the Orchestrator. Read by the Engineer. The Engineer updates the
 
 **Task:** Realtime two-phone session scaffold
 **Assigned:** 2026-05-01 10:25
-**Status:** claimed
+**Status:** shipped
 
 **Goal:** Stand up the realtime substrate every later feature will sit on.
 Two phones, both opening the same shareable URL, can confirm within seconds

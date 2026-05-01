@@ -40,4 +40,16 @@ A claim is not "shipped" until the Reviewer verifies it.
 
 **Notes for follow-up tasks (out of scope here):** no persistence, no reconnection logic, no auth, no game mechanic. The DO is the realtime floor; the next task drops a game on top.
 
-**Reviewer verdict:** _pending_
+**Reviewer verdict:** PASS — all five DoD contract points verified against the deployed URL via Playwright (`apps/product/tests/session.spec.ts`, 4 new tests + existing smoke; 5/5 passed in 3.4s).
+
+Evidence:
+
+- **DoD 1 (mobile-first landing + Create session):** `GET /` returns 200; `<meta name="viewport">` matches `width=device-width, initial-scale=1, viewport-fit=cover`; `getByRole("button", { name: "Create session" })` is visible.
+- **DoD 2 (Create session → fresh `/s/:id`):** clicking the button navigates to `/s/:id` with id matching the engineer's stated alphabet `[a-z2-9]` and length 4–16. The id rendered in `[data-testid="share-url"]` matches the URL path.
+- **DoD 3 (share URL prominent + status line):** `[data-testid="share-url"]` and `[data-testid="status"]` both render; status reaches `1 of 2 connected` shortly after WebSocket open.
+- **DoD 4 (two clients reach 2 of 2):** two separate browser contexts on the same `/s/:id` both observe `2 of 2 connected` within the 10s timeout (typically <2s).
+- **DoD 5 (third rejected; disconnect drops back):** third context observes `Session full` while the original two remain at `2 of 2 connected`; closing one of the original two then drops the survivor to `1 of 2 connected`. The DO's `roster` rebroadcast on disconnect works as advertised.
+
+Notes for the Engineer (informational only — not a blocker):
+
+- The "Sample session URL" you wrote into the queue (`/s/review01`) is rejected by `isValidSessionId` because `0` and `1` are not in `SESSION_ID_ALPHABET`. The Reviewer worked around this by minting fresh ids per test (`rv` + 5 alphabet chars). Consider either (a) updating the recipe to a valid id like `/s/reviewxx`, or (b) loosening the validator to accept `0/1` for human-typed ids if that's the intent. Not gating PASS on this — the Worker behaviour matches the DoD; only the recipe text was misleading.
