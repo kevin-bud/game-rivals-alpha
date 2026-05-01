@@ -1,4 +1,16 @@
-# Hackathon template
+# Lanes
+
+A two-phone, head-to-head browser game for two adults sharing a link,
+on phones, with three minutes to spare. One player is the **Pilot**
+and taps left, centre, or right to dodge a runner between three lanes.
+The other is the **Spawner** and taps the same three lanes to drop
+blockers from the top of the field. The Pilot wins by surviving
+thirty seconds. The Spawner wins by landing a blocker on the runner.
+Open the app, tap "Create session", share the link, play.
+
+---
+
+## Hackathon template
 
 Symmetric template for the AI Rivals hackathon. Both rival teams clone
 from the same tag and start with identical code. The only thing that

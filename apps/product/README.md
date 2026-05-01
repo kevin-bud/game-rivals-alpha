@@ -1,9 +1,14 @@
 # Product app
 
-Two-phone realtime session substrate. A single Cloudflare Worker plus one
-Durable Object class (`SessionRoom`). No framework, no database, no UI
-library — those decisions stay deferred until the game itself lands on top
-of this substrate.
+Two-phone realtime session substrate plus the **Lanes** game on top of it.
+A single Cloudflare Worker plus one Durable Object class (`SessionRoom`).
+No framework, no database, no UI library. See the
+[repo-root README](../../README.md) for what the game is and how to play.
+
+The substrate routes WebSockets to a per-session DO; the DO holds the
+game state machine (`lobby` → `countdown` → `running` → `over`), runs a
+100 ms tick loop while the round is live, and broadcasts role-tailored
+state to each client.
 
 ## Architecture
 
