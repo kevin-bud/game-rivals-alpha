@@ -161,3 +161,15 @@ Notes: Out-of-scope items (score tracking, match end, theme, animations, sound, 
 4. Confirm the persistent header `[data-testid="score"]` is visible during `countdown` and `running` and hidden during `lobby` and `over` (the overlay carries the score during `over`).
 
 **Notes:** Out-of-scope per the task spec — no match end, no "New match" button, no score reset (closing the session is the reset), no theme, no animation, no sound, no reconnection. The DO mutation is purely additive on the existing `over` transition; existing winner detection, tick loop, collision detection, role swap, cooldowns and countdown are unchanged.
+
+**Verdict (Reviewer, 2026-05-01 ~12:08 UTC): PASS.**
+
+Evidence — all run against `https://game-rivals-alpha-product.kevin-wilson.workers.dev`:
+
+- Full Playwright suite (`PRODUCT_URL=… pnpm --filter product test:e2e`) — 7/7 green on first run, no flake on `session.spec.ts:94` (no retry needed). After adding the slot-indexing test: 8/8 green.
+- New targeted test `apps/product/tests/score.spec.ts` — drives two Spawner-wins rounds across a Play Again with a fresh session id and asserts:
+  - (A) Initial state: both clients see `score-self` = `0` and `score-other` = `0` once the persistent header becomes visible after the first countdown.
+  - (B) Slot-indexing: after round 1 (slot B / originally-Spawner wins) the overlay shows `1 / 0` for slot B and `0 / 1` for slot A. After Play Again + role swap + a second Spawner-wins round (now won by slot A / originally-Pilot, who is the new Spawner), the overlay shows `1 / 1` from *both* perspectives. A role-indexed implementation would instead show `2 / 0` or `0 / 2`. The 1·1 result is the strongest possible signal the increment uses slot indexing, not role indexing.
+  - (C) Persistent header visibility: `[data-testid="score"]` is visible during countdown/running and hidden during the over overlay (overlay carries `overlay-score-self` / `overlay-score-other`). Header carries the cumulative score across the role-swap.
+- Lint passes (`pnpm --filter product lint`).
+- Sample URL `…/s/rvscore7` in the original claim is technically invalid because the session-id alphabet excludes `o`; the deployed handler correctly returns the "that link doesn't look right" page for that id. Doc nit only — does not affect the implementation. Tests use the same alphabet via `freshSessionId()` and work correctly.
