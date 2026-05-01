@@ -114,8 +114,8 @@ test("Lanes round resolves with Spawner win and play-again restarts a fresh roun
     await expect(spawnerPage.getByTestId("play-again")).toBeVisible();
 
     // (5) Play again from one client resets to a fresh countdown and the
-    // round runs again. Roles must persist (Pilot stays Pilot, Spawner
-    // stays Spawner — no role swap in this slice).
+    // round runs again. Roles swap each round: the original Pilot tab
+    // becomes the Spawner, and vice versa.
     await pilotPage.getByTestId("play-again").click();
 
     // The countdown banner appears on both clients during the 3 s
@@ -127,27 +127,35 @@ test("Lanes round resolves with Spawner win and play-again restarts a fresh roun
     await expect(pilotPage.getByTestId("overlay")).toBeHidden({ timeout: 8_000 });
     await expect(spawnerPage.getByTestId("overlay")).toBeHidden({ timeout: 8_000 });
 
-    // Roles unchanged.
-    await expect(pilotPage.getByTestId("role")).toHaveText("You are the Pilot");
-    await expect(spawnerPage.getByTestId("role")).toHaveText("You are the Spawner");
+    // Roles swapped: the originally-Pilot tab is now Spawner, the
+    // originally-Spawner tab is now Pilot. Lane button labels follow.
+    await expect(pilotPage.getByTestId("role")).toHaveText("You are the Spawner");
+    await expect(spawnerPage.getByTestId("role")).toHaveText("You are the Pilot");
+    await expect(pilotPage.getByTestId("lane-1")).toHaveText("Drop ▼");
+    await expect(spawnerPage.getByTestId("lane-1")).toHaveText("Centre");
+    // Runner / ghost-runner also follow the new role assignment.
+    await expect(spawnerPage.getByTestId("runner")).toBeVisible();
+    await expect(pilotPage.getByTestId("ghost-runner")).toBeVisible();
 
     // Drive the second round to a Spawner win the same way to confirm the
-    // tick loop and collision detection survived the reset.
-    await pilotPage.getByTestId("lane-1").click();
+    // tick loop and collision detection survived the reset. The original
+    // Spawner tab is now the Pilot, so it pins lane 1; the original Pilot
+    // tab is now the Spawner, spamming lane 1.
+    await spawnerPage.getByTestId("lane-1").click();
 
     for (let i = 0; i < 25; i += 1) {
-      const overlayVisible = await spawnerPage
+      const overlayVisible = await pilotPage
         .getByTestId("overlay")
         .isVisible()
         .catch(() => false);
       if (overlayVisible) {
         break;
       }
-      await spawnerPage
+      await pilotPage
         .getByTestId("lane-1")
         .click({ timeout: 2_000 })
         .catch(() => {});
-      await spawnerPage.waitForTimeout(700);
+      await pilotPage.waitForTimeout(700);
     }
 
     await expect(pilotPage.getByTestId("overlay")).toBeVisible({ timeout: 25_000 });

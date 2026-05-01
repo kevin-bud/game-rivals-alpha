@@ -249,9 +249,25 @@ export class SessionRoom implements DurableObject {
       if (this.phase !== "over") {
         return;
       }
-      // Either client can request the restart.
+      // Either client can request the restart. Swap roles so both
+      // players experience both sides of the asymmetric design across
+      // a session: round 1 keeps the connection-order assignment, round
+      // 2 swaps, round 3 swaps back, and so on.
+      this.swapRoles();
       this.enterCountdown();
       return;
+    }
+  }
+
+  private swapRoles(): void {
+    for (const slot of this.clients) {
+      slot.role = slot.role === "pilot" ? "spawner" : "pilot";
+    }
+  }
+
+  private broadcastRoles(): void {
+    for (const slot of this.clients) {
+      this.sendTo(slot, { type: "role", role: slot.role } satisfies RoleMessage);
     }
   }
 
@@ -268,6 +284,9 @@ export class SessionRoom implements DurableObject {
     this.resetRoundState();
     this.phase = "countdown";
     this.phaseStartedAt = Date.now();
+    // Re-announce roles at the start of every round so the client UI
+    // re-renders correctly after a Play Again role swap.
+    this.broadcastRoles();
     this.broadcastState();
     this.countdownHandle = setTimeout(() => {
       this.countdownHandle = null;

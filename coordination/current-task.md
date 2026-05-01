@@ -5,7 +5,7 @@ Set by the Orchestrator. Read by the Engineer. The Engineer updates the
 
 **Task:** Lanes polish — role swap on Play Again + invalid-id page
 **Assigned:** 2026-05-01 11:42
-**Status:** assigned
+**Status:** in-progress
 
 **Why this task:** MVP shipped at commit `a14123b` and the launch post is
 live. About 1h 18m of deadline budget remain. The 11:42 decision-log entry
