@@ -16,6 +16,107 @@ new entry that references the previous one.
 
 ---
 
+## 2026-05-01 10:58 — Reverse "Lighthouse" hypothesis; commit "Lanes" concept
+
+**Context:** First rival check just completed (see `rival-state.md` 10:55
+entry). Both rivals — game-rivals-beta and game-rivals-gamma — have
+independently landed on essentially the game I had as a working hypothesis
+at kickoff: **a cooperative, maritime, information-asymmetric two-player
+web game where one player has a map and the other is sailing blind**. Both
+have shipped lobbies and at least one has shipped a launch post with
+"BEACON" as the name. Even the win condition (reach the harbour together)
+matches the Lighthouse sketch. A third near-identical entry would be the
+worst possible posture against the brief's explicit evaluation question
+"Where did you and the rival diverge, and what does that suggest?" —
+convergence reveals nothing interesting; divergence is the entire signal.
+The substrate is game-agnostic and the cost of pivoting now (no game code
+exists yet) is materially smaller than the cost of converging. Reverses
+the Lighthouse hypothesis from the 10:25 kickoff entry.
+
+**Options considered:**
+
+1. **Stick with Lighthouse anyway** — different code, similar concept; rely
+   on execution and theme to differentiate. Cheap to start, expensive in
+   evaluation: the "where did you diverge" axis pays out badly.
+2. **Pick a different cooperative information-asymmetric game** — same
+   structural shape as the rivals but a different setting (e.g. heist,
+   surgery, archaeology). Diverges on theme, not on structure. Half a flip.
+3. **Pick a competitive, role-asymmetric, action-driven game** — flips
+   three independent structural axes from the rivals at once: co-op →
+   competitive, info-asymmetry → role-asymmetry, communication → action.
+   Different fun. Different evidence in the decision trail.
+4. **Pick a creative-vs-interpretive game** (e.g. one player builds, other
+   guesses or grades) — diverges on interaction model but tends towards
+   Pictionary-clone risk and is harder to land in two hours.
+
+**Choice:** Option 3. Working title **"Lanes"**. Competitive 1v1,
+role-asymmetric, action-driven, phone-portrait native.
+
+**The game in one paragraph:** Phone-portrait screen split into three
+vertical lanes. A small "ship" (or runner — theme later) starts at the
+bottom and is automatically scrolling upward at constant pace. **Player
+A is the Pilot** — they tap left/centre/right to switch the runner
+between lanes. **Player B is the Spawner** — they tap left/centre/right
+to drop a blocker into a lane at the top of the screen, which then scrolls
+down. If a blocker collides with the runner, the Spawner scores; if the
+runner survives 30 seconds, the Pilot scores. Best of three rounds, roles
+swap each round, third round breaks ties on a smaller field. A full match
+fits well inside five minutes. Both players see the same scrolling field
+(no fog-of-war), but their controls and objectives are inverted. The
+asymmetry is in role and goal, not in information.
+
+**Rationale:**
+
+- **Diverges on structure, not just theme.** Three independent flips from
+  the rival baseline: competitive, role-asymmetric, action-driven. Even if
+  a third rival later landed on a similar concept, our decision trail
+  documents the divergence as a deliberate response to convergence — that
+  reasoning is itself the artefact the brief evaluates.
+- **Buildable in the remaining ~2h.** No physics simulation, no continuous
+  collision; the field is a discrete grid (3 lanes wide) that ticks on a
+  server timer (e.g. every 100–200 ms). State is a small JSON blob. The
+  Worker DO already has WebSocket fan-out. The engineering shape is "tick
+  loop + collision check + broadcast" on top of the existing substrate.
+- **Phone-portrait by design.** Three vertical lanes is exactly what a
+  portrait phone wants. No tortured layout maths.
+- **Sub-5-minute by design.** A 30-second round, three rounds, ten seconds
+  of intermission = about two minutes per match. "Want another go?" lands
+  naturally.
+- **Not a clone.** Closest cultural reference points are arcade dodgers
+  (Frogger, Crossy Road) but those are single-player and the player drives
+  *all* the danger. Inverting the dodge-vs-spawn relationship into a 1v1
+  competitive match is the design move, and I am not aware of a
+  commercially recognisable game with this exact 1v1 inversion. If the
+  Engineer or Reviewer recognises a clone risk during build, flag back to
+  the Orchestrator.
+- **Legible to a non-gamer.** Two buttons per role (lane choice). Tutorial
+  is a single sentence on each player's screen ("Tap a lane to dodge" /
+  "Tap a lane to drop a blocker"). No tutorial screen needed.
+
+**Asymmetry, defended:** Pilot and Spawner have different inputs (move
+self vs spawn obstacle), different views (Pilot sees the runner's
+position; Spawner sees a *delayed* indicator of the runner's lane —
+~500 ms of lag, so the Spawner has to predict, not react), and different
+objectives (survive vs hit). This satisfies the brief's "different roles,
+different views, different inputs, *or* different objectives" — we
+satisfy all four, not just the minimum.
+
+**What this commitment does NOT include (deliberately deferred):**
+
+- Theme. "Runner / Spawner" is a placeholder. The theme decision happens
+  after a working slice exists; it should not block engineering.
+- Best-of-3 and role-swap. The first slice is a single round.
+- Sound, animation polish, score persistence, leaderboards.
+- Reconnection across DO eviction.
+
+**Reversible?** Costly to reverse once the first vertical slice is built —
+swapping concepts a second time inside the remaining budget would forfeit
+the deadline. Up until the next Engineer task is assigned, it is still
+free to reverse. The Engineer's next task will be the first vertical
+slice; from that point the concept is effectively committed.
+
+---
+
 ## 2026-05-01 10:51 — Deadline extended by one hour
 
 **Context:** On re-reading `BRIEF.md` the fixed deadline has moved from
